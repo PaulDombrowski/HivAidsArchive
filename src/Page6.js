@@ -7,9 +7,9 @@ import './UploadForm.css';
 function UploadForm() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState([]);  // Category als Array  // Kategorie-Feld hinzugefügt
-  const [type, setType] = useState('');  // Type-Feld hinzugefügt und umbenannt
-  const [source, setSource] = useState('');  // Neues Feld für Quelle
+  const [category, setCategory] = useState([]);  // Kategorie-Feld als Array initialisieren
+  const [type, setType] = useState(''); 
+  const [source, setSource] = useState('');
   const [files, setFiles] = useState([]);
   const [thumbnailUrl, setThumbnailUrl] = useState('');
   const [thumbnail, setThumbnail] = useState(null);
@@ -20,6 +20,9 @@ function UploadForm() {
   const [mood, setMood] = useState('');
   const [tags, setTags] = useState('');
   const [error, setError] = useState(null);
+
+  // ... weitere Funktionen wie handleFileChange, handleAdditionalInfoChange, etc.
+
 
   const handleFileChange = (e) => {
     if (e.target.files.length > 4) {
@@ -46,7 +49,7 @@ function UploadForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !description || !category || !type || !uploader || !motivation || !mood) {
+    if (!title || !description || !category.length || !type || !uploader || !motivation || !mood) {
       setError("Please fill in all required fields.");
       return;
     }
@@ -70,7 +73,7 @@ function UploadForm() {
       await addDoc(collection(db, 'uploads'), {
         title,
         description,
-        category,
+        category,  // Kategorie wird als Array gespeichert
         type,
         source,
         fileURLs,
@@ -84,11 +87,12 @@ function UploadForm() {
         createdAt: new Date(),
       });
 
+      // Formular zurücksetzen nach erfolgreichem Upload
       setTitle('');
       setDescription('');
-      setCategory('');  // Kategorie zurücksetzen
-      setType('');  // Type zurücksetzen
-      setSource('');  // Quelle zurücksetzen
+      setCategory([]);  // Kategorie zurücksetzen
+      setType('');
+      setSource('');
       setFiles([]);
       setThumbnail(null);
       setThumbnailUrl('');
@@ -106,6 +110,7 @@ function UploadForm() {
     }
   };
 
+
   return (
     <form onSubmit={handleSubmit} className="upload-form">
       <label>
@@ -116,32 +121,38 @@ function UploadForm() {
         Description: <span className="required">*</span>
         <textarea value={description} onChange={(e) => setDescription(e.target.value)} required></textarea>
       </label>
+
       <label>
-  Category: <span className="required">*</span>
-  <div className="category-checkboxes">
-    {[
-      "BEAUTY", "COMFORT", "DENIAL", "FEAR", "HOPE", "INSPIRATION",
-      "LOSS", "LOVE", "MOURNING", "LIBERATION", "PAIN", "PASSION",
-      "SEX", "SHAME", "STIGMA", "STRENGTH", "TRACES"
-    ].map((cat) => (
-      <div key={cat}>
-        <input
-          type="checkbox"
-          value={cat}
-          checked={category.includes(cat)}
-          onChange={(e) => {
-            if (e.target.checked) {
-              setCategory([...category, cat]);
-            } else {
-              setCategory(category.filter(c => c !== cat));
-            }
-          }}
-        />
-        {cat}
-      </div>
-    ))}
-  </div>
-</label>
+        Category: <span className="required">*</span>
+        <div className="category-checkboxes">
+          {[
+            "BEAUTY", "COMFORT", "DENIAL", "FEAR", "HOPE", "INSPIRATION",
+            "LOSS", "LOVE", "MOURNING", "LIBERATION", "PAIN", "PASSION",
+            "SEX", "SHAME", "STIGMA", "STRENGTH", "TRACES", "VIOLENCE"
+          ].map((cat) => (
+            <div key={cat}>
+              <input
+                type="checkbox"
+                value={cat}
+                checked={category.includes(cat)}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setCategory([...category, cat]);
+                  } else {
+                    setCategory(category.filter(c => c !== cat));
+                  }
+                }}
+              />
+              {cat}
+            </div>
+          ))}
+        </div>
+      </label>
+
+     
+
+
+
 
       <label>
         Type: <span className="required">*</span>  {/* Type-Feld */}
@@ -151,6 +162,7 @@ function UploadForm() {
 <option value="Artwork">Artwork</option>
 <option value="Audio">Audio</option>
 <option value="Book">Book</option>
+<option value="Blogpost">Blogpost</option>
 <option value="Case Study">Case Study</option>
 <option value="Collected Volume">Collected Volume</option>
 <option value="Conference Paper">Conference Paper</option>
@@ -191,7 +203,8 @@ function UploadForm() {
 <option value="Thesis">Thesis</option>
 <option value="Video">Video</option>
 <option value="Website">Website</option>
-<option value="Miscellaneous">Miscellaneous</option>
+<option value="Other">Other</option>
+
 
         </select>
       </label>
