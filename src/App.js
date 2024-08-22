@@ -12,8 +12,11 @@ import Page7 from './Page7';
 import DetailPage from './DetailPage'; // Importiere die DetailPage
 
 function App() {
+  const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+  const basename = isLocalhost ? "/" : process.env.PUBLIC_URL;
+
   return (
-    <Router>
+    <Router basename={basename}>
       <Routes>
         <Route
           path="/"
