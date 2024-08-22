@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/HivAidsArchive/static/css/main.787aff24.css",
-    "main.js": "/HivAidsArchive/static/js/main.a96c2e64.js",
+    "main.js": "/HivAidsArchive/static/js/main.1d8a88c2.js",
     "static/js/453.b39bc23e.chunk.js": "/HivAidsArchive/static/js/453.b39bc23e.chunk.js",
     "index.html": "/HivAidsArchive/index.html",
     "main.787aff24.css.map": "/HivAidsArchive/static/css/main.787aff24.css.map",
-    "main.a96c2e64.js.map": "/HivAidsArchive/static/js/main.a96c2e64.js.map",
+    "main.1d8a88c2.js.map": "/HivAidsArchive/static/js/main.1d8a88c2.js.map",
     "453.b39bc23e.chunk.js.map": "/HivAidsArchive/static/js/453.b39bc23e.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.787aff24.css",
-    "static/js/main.a96c2e64.js"
+    "static/js/main.1d8a88c2.js"
   ]
 }
