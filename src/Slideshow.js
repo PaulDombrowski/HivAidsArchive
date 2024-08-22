@@ -1,4 +1,3 @@
-// Slideshow.js
 import React, { useRef, useState, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useNavigate } from 'react-router-dom';
@@ -14,6 +13,7 @@ function ImagePlane({ position, texture, scale, onClick, delay, isThird }) {
     to: { position, opacity: 1 },
     delay, // Verzögerung der Animation für jedes Bild
     config: { tension: 80, friction: 20 }, // Langsamere Animation
+    onRest: () => console.log(`Animation for image at position ${position} finished.`),
   });
 
   const scaleSpring = useSpring({
@@ -23,7 +23,6 @@ function ImagePlane({ position, texture, scale, onClick, delay, isThird }) {
 
   useFrame(() => {
     if (isThird && meshRef.current) {
-      // Langsame Rotation, Position bleibt gleich
       meshRef.current.rotation.z += 0.003; // Langsame Rotation
     }
   });
@@ -33,9 +32,18 @@ function ImagePlane({ position, texture, scale, onClick, delay, isThird }) {
       ref={meshRef}
       position={springProps.position}
       scale={scaleSpring.scale}
-      onPointerOver={() => setHovered(true)}
-      onPointerOut={() => setHovered(false)}
-      onPointerDown={onClick}
+      onPointerOver={() => {
+        console.log(`Hovering over image at position ${position}`);
+        setHovered(true);
+      }}
+      onPointerOut={() => {
+        console.log(`Stopped hovering over image at position ${position}`);
+        setHovered(false);
+      }}
+      onPointerDown={() => {
+        console.log(`Clicked on image at position ${position}`);
+        onClick();
+      }}
     >
       <planeGeometry args={[3, 3]} />
       <a.meshBasicMaterial
@@ -69,46 +77,67 @@ function Slideshow() {
   const [loadedTextures, setLoadedTextures] = useState([]);
 
   useEffect(() => {
-    const loaders = images.map((path) =>
-      new TextureLoader().loadAsync(path).catch((error) => {
-        console.error(`Error loading texture: ${path}`, error);
-        return null;
-      })
+    console.log('Start loading textures');
+    const loaders = images.map((path, index) =>
+      new TextureLoader().loadAsync(path)
+        .then(texture => {
+          console.log(`Loaded texture ${index + 1}: ${path}`);
+          return texture;
+        })
+        .catch((error) => {
+          console.error(`Error loading texture: ${path}`, error);
+          return null;
+        })
     );
 
     Promise.all(loaders).then((textures) => {
-      setLoadedTextures(textures.filter(texture => texture !== null));
+      const filteredTextures = textures.filter(texture => texture !== null);
+      setLoadedTextures(filteredTextures);
+      console.log(`Loaded ${filteredTextures.length} of ${textures.length} textures successfully.`);
     });
 
     const handleScroll = (event) => {
-      setTargetZ((prev) => Math.max(prev + event.deltaY * 0.05, 0));
+      setTargetZ((prev) => {
+        const newZ = Math.max(prev + event.deltaY * 0.05, 0);
+        console.log(`Scroll event: New target Z position = ${newZ}`);
+        return newZ;
+      });
     };
 
     window.addEventListener('wheel', handleScroll);
     return () => {
+      console.log('Cleaning up event listener');
       window.removeEventListener('wheel', handleScroll);
     };
   }, []);
 
   useFrame(() => {
     if (groupRef.current) {
-      setCurrentZ((prev) => prev + (targetZ - prev) * 0.1);
-      groupRef.current.position.z = currentZ;
+      setCurrentZ((prev) => {
+        const newZ = prev + (targetZ - prev) * 0.1;
+        groupRef.current.position.z = newZ;
+        return newZ;
+      });
+      console.log(`Frame update: Current Z position = ${currentZ}`);
     }
   });
 
-  const maxImageScale = 0.6; // Angepasste maximale Größe
+  const maxImageScale = 0.6;
   const calculatedScale = Math.min(size.width / 1500, size.height / 1500, maxImageScale);
+  console.log(`Calculated image scale = ${calculatedScale}`);
 
   const objects = loadedTextures.map((texture, i) => ({
     position: [0, 0, -zDistance * i],
     texture,
-    delay: i * 300, // Verzögerung für jedes Bild, das von hinten nach vorne animiert wird
+    delay: i * 300,
     onClick: () => {
-      navigate(`/page${i + 1}`); // Sofortige Navigation zur nächsten Seite
+      console.log(`Navigating to /page${i + 1}`);
+      navigate(`/page${i + 1}`);
     },
-    isThird: i === 2, // Check if this is the third object
+    isThird: i === 2,
   }));
+
+  console.log('Rendering slideshow with objects:', objects);
 
   return (
     <group ref={groupRef}>
@@ -120,7 +149,7 @@ function Slideshow() {
           scale={[calculatedScale, calculatedScale, calculatedScale]}
           onClick={obj.onClick}
           delay={obj.delay}
-          isThird={obj.isThird} // Pass the isThird flag to ImagePlane
+          isThird={obj.isThird}
         />
       ))}
     </group>
