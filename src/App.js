@@ -15,13 +15,16 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={
-          <div style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
-            <Canvas camera={{ position: [1, 0, 5], fov: 30 }} style={{ width: '100vw', height: '100vh' }}>
-              <Slideshow />
-            </Canvas>
-          </div>
-        } />
+        <Route
+          path="/"
+          element={
+            <div style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
+              <Canvas camera={{ position: [1, 0, 5], fov: 30 }} style={{ width: '100vw', height: '100vh' }}>
+                <Slideshow />
+              </Canvas>
+            </div>
+          }
+        />
         <Route path="/page1" element={<Page1 />} />
         <Route path="/page2" element={<Page2 />} />
         <Route path="/page3" element={<Page3 />} />
@@ -29,7 +32,7 @@ function App() {
         <Route path="/page5" element={<Page5 />} />
         <Route path="/page6" element={<Page6 />} />
         <Route path="/page7" element={<Page7 />} />
-        <Route path="/detail/:id" element={<DetailPage />} /> {/* Neue Route für Detailseite */}
+        <Route path="/detail/:id" element={<DetailPage />} />
       </Routes>
     </Router>
   );
