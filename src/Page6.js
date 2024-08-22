@@ -220,16 +220,16 @@ function UploadForm() {
         <button type="button" onClick={addMoreInfoField}>Add Another URL</button>
       </label>
       <label>
-        Uploader: <span className="required">*</span>
-        <input type="text" value={uploader} onChange={(e) => setUploader(e.target.value)} required />
+        Uploader: 
+        <input type="text" value={uploader} onChange={(e) => setUploader(e.target.value)} />
       </label>
       <label>
-        Motivation: <span className="required">*</span>
-        <textarea value={motivation} onChange={(e) => setMotivation(e.target.value)} required></textarea>
+        Motivation: 
+        <textarea value={motivation} onChange={(e) => setMotivation(e.target.value)} ></textarea>
       </label>
       <label>
-        Mood: <span className="required">*</span>
-        <textarea value={mood} onChange={(e) => setMood(e.target.value)} required></textarea>
+        Mood:
+        <textarea value={mood} onChange={(e) => setMood(e.target.value)} ></textarea>
       </label>
       <label>
         Tags (comma separated):
