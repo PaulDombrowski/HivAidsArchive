@@ -1,8 +1,8 @@
-// Page4.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { motion } from 'framer-motion';
 import './Page4.css'; // Importiere die CSS-Datei
 
 const firebaseConfig = {
@@ -29,8 +29,8 @@ function Page4() {
       try {
         const querySnapshot = await getDocs(collection(db, "uploads"));
         const items = [];
-        querySnapshot.forEach((doc) => {
-          items.push({ id: doc.id, ...doc.data() });
+        querySnapshot.forEach((doc, index) => {
+          items.push({ id: doc.id, number: index + 1, ...doc.data() });
         });
         setData(items);
       } catch (error) {
@@ -41,42 +41,62 @@ function Page4() {
     fetchData();
   }, []);
 
+  const getRandomPositionStyle = () => {
+    const top = Math.random() * 20 - 10; // Zufällige Positionierung nach oben/unten
+    const left = Math.random() * 20 - 10; // Zufällige Positionierung nach links/rechts
+    return {
+      transform: `translate(${left}%, ${top}%)`
+    };
+  };
+
+  const handleRowClick = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.style.transition = "opacity 0.5s ease-out";
+      element.style.opacity = 0;
+      setTimeout(() => navigate(`/detail/${id}`), 500);
+    }
+  };
+
   return (
-    <div>
+    <div className="page4-container">
       <h1>Gespeicherte Daten</h1>
-      {/* Hover-Titel wird über dem Bildschirm angezeigt */}
       <div className={`hover-title ${hoverTitle ? 'show' : ''}`}>
-        {hoverTitle}
+        {hoverTitle.split(' ').map((word, index) => (
+          <span key={index} style={getRandomPositionStyle()}>{word}</span>
+        ))}
       </div>
       <table>
         <thead>
           <tr>
-            <th>ID</th>
+            <th>#</th>
             <th>Title</th>
+            <th>Type</th>
             <th>Category</th>
-            <th>Object Type</th>
             <th>Tags</th>
-            <th>Uploader</th>
             <th>Created At</th>
           </tr>
         </thead>
         <tbody>
-          {data.map((item) => (
-            <tr
+          {data.map((item, index) => (
+            <motion.tr
               key={item.id}
-              onClick={() => navigate(`/detail/${item.id}`)}
+              id={item.id}
+              initial={{ opacity: 0, translateY: -20 }}
+              animate={{ opacity: 1, translateY: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              onClick={() => handleRowClick(item.id)}
               onMouseEnter={() => setHoverTitle(item.title)}
               onMouseLeave={() => setHoverTitle('')}
               className="clickable-row"
             >
-              <td>{item.id}</td>
+              <td>{index + 1}</td>
               <td>{item.title}</td>
+              <td>{item.type}</td>
               <td>{item.category}</td>
-              <td>{item.objectType}</td>
               <td>{item.tags.join(', ')}</td>
-              <td>{item.uploader}</td>
               <td>{new Date(item.createdAt.seconds * 1000).toLocaleString()}</td>
-            </tr>
+            </motion.tr>
           ))}
         </tbody>
       </table>

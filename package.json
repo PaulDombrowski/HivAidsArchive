@@ -13,6 +13,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.4",
     "firebase": "^10.12.5",
+    "framer-motion": "^11.3.29",
     "gh-pages": "^6.1.1",
     "oembed-parser": "^3.1.6-rc1",
     "pdfjs-dist": "^3.11.174",
@@ -25,13 +26,12 @@
     "three": "^0.167.1",
     "web-vitals": "^2.1.4"
   },
- "scripts": {
-  "start": "react-scripts start",
-  "build": "react-scripts build",
-  "predeploy": "npm run build",
-  "deploy": "gh-pages -d build"
-},
-
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
+  },
   "eslintConfig": {
     "extends": [
       "react-app",
