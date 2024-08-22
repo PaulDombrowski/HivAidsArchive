@@ -7,7 +7,7 @@ import './UploadForm.css';
 function UploadForm() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('');  // Kategorie-Feld hinzugefügt
+  const [category, setCategory] = useState([]);  // Category als Array  // Kategorie-Feld hinzugefügt
   const [type, setType] = useState('');  // Type-Feld hinzugefügt und umbenannt
   const [source, setSource] = useState('');  // Neues Feld für Quelle
   const [files, setFiles] = useState([]);
@@ -117,28 +117,32 @@ function UploadForm() {
         <textarea value={description} onChange={(e) => setDescription(e.target.value)} required></textarea>
       </label>
       <label>
-        Category: <span className="required">*</span>  {/* Kategorie-Feld */}
-        <select value={category} onChange={(e) => setCategory(e.target.value)} required>
-          <option value="">Select Category</option>
-          <option value="BEAUTY">BEAUTY</option>
-          <option value="COMFORT">COMFORT</option>
-          <option value="DENIAL">DENIAL</option>
-          <option value="FEAR">FEAR</option>
-          <option value="HOPE">HOPE</option>
-          <option value="INSPIRATION">INSPIRATION</option>
-          <option value="LOSS">LOSS</option>
-          <option value="LOVE">LOVE</option>
-          <option value="MOURNING">MOURNING</option>
-          <option value="LIBERATION">LIBERATION</option>
-          <option value="PAIN">PAIN</option>
-          <option value="PASSION">PASSION</option>
-          <option value="SEX">SEX</option>
-          <option value="SHAME">SHAME</option>
-          <option value="STIGMA">STIGMA</option>
-          <option value="STRENGTH">STRENGTH</option>
-          <option value="TRACES">TRACES</option>
-        </select>
-      </label>
+  Category: <span className="required">*</span>
+  <div className="category-checkboxes">
+    {[
+      "BEAUTY", "COMFORT", "DENIAL", "FEAR", "HOPE", "INSPIRATION",
+      "LOSS", "LOVE", "MOURNING", "LIBERATION", "PAIN", "PASSION",
+      "SEX", "SHAME", "STIGMA", "STRENGTH", "TRACES"
+    ].map((cat) => (
+      <div key={cat}>
+        <input
+          type="checkbox"
+          value={cat}
+          checked={category.includes(cat)}
+          onChange={(e) => {
+            if (e.target.checked) {
+              setCategory([...category, cat]);
+            } else {
+              setCategory(category.filter(c => c !== cat));
+            }
+          }}
+        />
+        {cat}
+      </div>
+    ))}
+  </div>
+</label>
+
       <label>
         Type: <span className="required">*</span>  {/* Type-Feld */}
         <select value={type} onChange={(e) => setType(e.target.value)} required>
