@@ -7,6 +7,9 @@ import './UploadForm.css';
 function UploadForm() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [category, setCategory] = useState('');  // Kategorie-Feld hinzugefügt
+  const [type, setType] = useState('');  // Type-Feld hinzugefügt und umbenannt
+  const [source, setSource] = useState('');  // Neues Feld für Quelle
   const [files, setFiles] = useState([]);
   const [thumbnailUrl, setThumbnailUrl] = useState('');
   const [thumbnail, setThumbnail] = useState(null);
@@ -15,8 +18,6 @@ function UploadForm() {
   const [uploader, setUploader] = useState('');
   const [motivation, setMotivation] = useState('');
   const [mood, setMood] = useState('');
-  const [category, setCategory] = useState('');
-  const [objectType, setObjectType] = useState('');
   const [tags, setTags] = useState('');
   const [error, setError] = useState(null);
 
@@ -45,7 +46,7 @@ function UploadForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !description || !files.length || !uploader || !motivation || !mood || !category || !objectType) {
+    if (!title || !description || !category || !type || !uploader || !motivation || !mood) {
       setError("Please fill in all required fields.");
       return;
     }
@@ -69,6 +70,9 @@ function UploadForm() {
       await addDoc(collection(db, 'uploads'), {
         title,
         description,
+        category,
+        type,
+        source,
         fileURLs,
         thumbnailURL,
         externalLink,
@@ -76,14 +80,15 @@ function UploadForm() {
         uploader,
         motivation,
         mood,
-        category,
-        objectType,
         tags: tags.split(',').map(tag => tag.trim()),
         createdAt: new Date(),
       });
 
       setTitle('');
       setDescription('');
+      setCategory('');  // Kategorie zurücksetzen
+      setType('');  // Type zurücksetzen
+      setSource('');  // Quelle zurücksetzen
       setFiles([]);
       setThumbnail(null);
       setThumbnailUrl('');
@@ -92,8 +97,6 @@ function UploadForm() {
       setUploader('');
       setMotivation('');
       setMood('');
-      setCategory('');
-      setObjectType('');
       setTags('');
       setError(null);
       alert("Upload successful!");
@@ -114,16 +117,95 @@ function UploadForm() {
         <textarea value={description} onChange={(e) => setDescription(e.target.value)} required></textarea>
       </label>
       <label>
-        Files (up to 4, max 1MB each): <span className="required">*</span>
-        <input type="file" onChange={handleFileChange} multiple required />
+        Category: <span className="required">*</span>  {/* Kategorie-Feld */}
+        <select value={category} onChange={(e) => setCategory(e.target.value)} required>
+          <option value="">Select Category</option>
+          <option value="BEAUTY">BEAUTY</option>
+          <option value="COMFORT">COMFORT</option>
+          <option value="DENIAL">DENIAL</option>
+          <option value="FEAR">FEAR</option>
+          <option value="HOPE">HOPE</option>
+          <option value="INSPIRATION">INSPIRATION</option>
+          <option value="LOSS">LOSS</option>
+          <option value="LOVE">LOVE</option>
+          <option value="MOURNING">MOURNING</option>
+          <option value="LIBERATION">LIBERATION</option>
+          <option value="PAIN">PAIN</option>
+          <option value="PASSION">PASSION</option>
+          <option value="SEX">SEX</option>
+          <option value="SHAME">SHAME</option>
+          <option value="STIGMA">STIGMA</option>
+          <option value="STRENGTH">STRENGTH</option>
+          <option value="TRACES">TRACES</option>
+        </select>
       </label>
       <label>
-        Thumbnail URL (optional):
+        Type: <span className="required">*</span>  {/* Type-Feld */}
+        <select value={type} onChange={(e) => setType(e.target.value)} required>
+        <option value="Advertisement">Advertisement</option>
+<option value="Article">Article</option>
+<option value="Artwork">Artwork</option>
+<option value="Audio">Audio</option>
+<option value="Book">Book</option>
+<option value="Case Study">Case Study</option>
+<option value="Collected Volume">Collected Volume</option>
+<option value="Conference Paper">Conference Paper</option>
+<option value="Dataset">Dataset</option>
+<option value="Diary">Diary</option>
+<option value="Documentary">Documentary</option>
+<option value="Essay">Essay</option>
+<option value="Exhibition">Exhibition</option>
+<option value="Film">Film</option>
+<option value="Flyer">Flyer</option>
+<option value="Interview">Interview</option>
+<option value="Journal">Journal</option>
+<option value="Legal Document">Legal Document</option>
+<option value="Letter">Letter</option>
+<option value="Magazine">Magazine</option>
+<option value="Memoir">Memoir</option>
+<option value="Monograph">Monograph</option>
+<option value="Music Video">Music Video</option>
+<option value="Newspaper">Newspaper</option>
+<option value="News Clip">News Clip</option>
+<option value="Newsletter">Newsletter</option>
+<option value="Novel">Novel</option>
+<option value="Official Document">Official Document</option>
+<option value="Oral History">Oral History</option>
+<option value="Pamphlet">Pamphlet</option>
+<option value="Photograph">Photograph</option>
+<option value="Podcast">Podcast</option>
+<option value="Poster">Poster</option>
+<option value="Presentation">Presentation</option>
+<option value="Research Paper">Research Paper</option>
+<option value="Screenshot">Screenshot</option>
+<option value="Short Story">Short Story</option>
+<option value="Social Media Comment">Social Media Comment</option>
+<option value="Social Media Post">Social Media Post</option>
+<option value="Speech">Speech</option>
+<option value="Survey">Survey</option>
+<option value="Testimony">Testimony</option>
+<option value="Thesis">Thesis</option>
+<option value="Video">Video</option>
+<option value="Website">Website</option>
+<option value="Miscellaneous">Miscellaneous</option>
+
+        </select>
+      </label>
+      <label>
+        Source (optional):  {/* Quelle-Feld */}
+        <input type="text" value={source} onChange={(e) => setSource(e.target.value)} />
+      </label>
+      <label>
+        Upload Thumbnail (optional):  {/* Thumbnail-Upload vor Thumbnail-URL */}
+        <input type="file" onChange={(e) => setThumbnail(e.target.files[0])} disabled={thumbnailUrl} />
+      </label>
+      <label>
+        Thumbnail URL (optional):  {/* Thumbnail-URL nach Thumbnail-Upload */}
         <input type="url" value={thumbnailUrl} onChange={(e) => setThumbnailUrl(e.target.value)} disabled={thumbnail} />
       </label>
       <label>
-        Upload Thumbnail (optional):
-        <input type="file" onChange={(e) => setThumbnail(e.target.files[0])} disabled={thumbnailUrl} />
+        Files (up to 4, max 1MB each):  {/* Pflichtfeld bei Files entfernt */}
+        <input type="file" onChange={handleFileChange} multiple />
       </label>
       <label>
         Linked Resources:
@@ -148,52 +230,6 @@ function UploadForm() {
       <label>
         Mood: <span className="required">*</span>
         <textarea value={mood} onChange={(e) => setMood(e.target.value)} required></textarea>
-      </label>
-      <label>
-        Category: <span className="required">*</span>
-        <select value={category} onChange={(e) => setCategory(e.target.value)} required>
-          <option value="">Select Category</option>
-          <option value="scientific_study">Scientific Study</option>
-          <option value="personal_story">Personal Story</option>
-          <option value="public_health">Public Health</option>
-          <option value="policy_and_law">Policy and Law</option>
-          <option value="cultural_contributions">Cultural Contributions</option>
-          <option value="educational_resources">Educational Resources</option>
-          {/* Weitere Kategorien hier */}
-        </select>
-      </label>
-      <label>
-        Object Type: <span className="required">*</span>
-        <select value={objectType} onChange={(e) => setObjectType(e.target.value)} required>
-          <option value="">Select Object Type</option>
-          <option value="social_media_post">Social Media Post</option>
-          <option value="article">Article</option>
-          <option value="monograph">Monograph</option>
-          <option value="film">Film</option>
-          <option value="letter">Letter</option>
-          <option value="interview">Interview</option>
-          <option value="podcast">Podcast</option>
-          <option value="news_clip">News Clip</option>
-          <option value="artwork">Artwork</option>
-          <option value="research_paper">Research Paper</option>
-          <option value="presentation">Presentation</option>
-          <option value="photograph">Photograph</option>
-          <option value="flyer">Flyer</option>
-          <option value="poster">Poster</option>
-          <option value="speech">Speech</option>
-          <option value="testimony">Testimony</option>
-          <option value="official_document">Official Document</option>
-          <option value="website_screenshot">Website Screenshot</option>
-          <option value="case_study">Case Study</option>
-          <option value="legal_document">Legal Document</option>
-          <option value="music_video">Music Video</option>
-          <option value="conference_paper">Conference Paper</option>
-          <option value="dataset">Dataset</option>
-          <option value="survey">Survey</option>
-          <option value="advertisement">Advertisement</option>
-          <option value="newsletter">Newsletter</option>
-          {/* Weitere Typen hier */}
-        </select>
       </label>
       <label>
         Tags (comma separated):
