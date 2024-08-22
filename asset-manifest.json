@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/PaulDombrowski/HivAidsArchive/static/css/main.787aff24.css",
-    "main.js": "/PaulDombrowski/HivAidsArchive/static/js/main.cedfc959.js",
-    "static/js/453.b39bc23e.chunk.js": "/PaulDombrowski/HivAidsArchive/static/js/453.b39bc23e.chunk.js",
-    "index.html": "/PaulDombrowski/HivAidsArchive/index.html",
-    "main.787aff24.css.map": "/PaulDombrowski/HivAidsArchive/static/css/main.787aff24.css.map",
-    "main.cedfc959.js.map": "/PaulDombrowski/HivAidsArchive/static/js/main.cedfc959.js.map",
-    "453.b39bc23e.chunk.js.map": "/PaulDombrowski/HivAidsArchive/static/js/453.b39bc23e.chunk.js.map"
+    "main.css": "/HivAidsArchive/static/css/main.787aff24.css",
+    "main.js": "/HivAidsArchive/static/js/main.a96c2e64.js",
+    "static/js/453.b39bc23e.chunk.js": "/HivAidsArchive/static/js/453.b39bc23e.chunk.js",
+    "index.html": "/HivAidsArchive/index.html",
+    "main.787aff24.css.map": "/HivAidsArchive/static/css/main.787aff24.css.map",
+    "main.a96c2e64.js.map": "/HivAidsArchive/static/js/main.a96c2e64.js.map",
+    "453.b39bc23e.chunk.js.map": "/HivAidsArchive/static/js/453.b39bc23e.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.787aff24.css",
-    "static/js/main.cedfc959.js"
+    "static/js/main.a96c2e64.js"
   ]
 }
