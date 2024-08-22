@@ -128,7 +128,7 @@ function UploadForm() {
           {[
             "BEAUTY", "COMFORT", "DENIAL", "FEAR", "HOPE", "INSPIRATION",
             "LOSS", "LOVE", "MOURNING", "LIBERATION", "PAIN", "PASSION",
-            "SEX", "SHAME", "STIGMA", "STRENGTH", "TRACES", "VIOLENCE", "Anger"
+            "SEX", "SHAME", "STIGMA", "STRENGTH", "TRACES", "VIOLENCE", "ANGER"
           ].map((cat) => (
             <div key={cat}>
               <input
