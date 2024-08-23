@@ -180,6 +180,7 @@ function UploadForm() {
 <option value="Magazine">Magazine</option>
 <option value="Memoir">Memoir</option>
 <option value="Monograph">Monograph</option>
+<option value="Movie">Movie</option>
 <option value="Music Video">Music Video</option>
 <option value="Newspaper">Newspaper</option>
 <option value="News Clip">News Clip</option>
@@ -201,6 +202,7 @@ function UploadForm() {
 <option value="Survey">Survey</option>
 <option value="Testimony">Testimony</option>
 <option value="Thesis">Thesis</option>
+<option value="TV-Series">TV-Series</option>
 <option value="Video">Video</option>
 <option value="Website">Website</option>
 <option value="Other">Other</option>

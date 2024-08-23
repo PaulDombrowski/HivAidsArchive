@@ -46,17 +46,23 @@ function DetailPage() {
 
   return (
     <div>
-      <h1>{data.title}</h1>
-      <p>Category: {data.category}</p>
-      <p>Object Type: {data.objectType}</p>
-      <p>Tags: {data.tags.join(', ')}</p>
-      <p>Uploader: {data.uploader}</p>
-      <p>Created At: {new Date(data.createdAt.seconds * 1000).toLocaleString()}</p>
+      {data.title && <h1>{data.title}</h1>}
+      {data.category && <p>Category: {data.category}</p>}
+      {data.objectType && <p>Object Type: {data.objectType}</p>}
+      {data.tags && <p>Tags: {data.tags.join(', ')}</p>}
+      {data.uploader && <p>Uploader: {data.uploader}</p>}
+      {data.createdAt && <p>Created At: {new Date(data.createdAt.seconds * 1000).toLocaleString()}</p>}
+      
+      {data.thumbnailURL ? (
+        <img src={data.thumbnailURL} alt={data.title} style={{ width: '100%', maxHeight: '400px', objectFit: 'contain' }} />
+      ) : (
+        data.fileURLs && data.fileURLs.map((url, index) => (
+          <img key={index} src={url} alt={data.title} style={{ width: '100%', maxHeight: '400px', objectFit: 'contain' }} />
+        ))
+      )}
+
       {data.additionalInfo && data.additionalInfo.map((info, index) => (
         <p key={index}><a href={info} target="_blank" rel="noopener noreferrer">{info}</a></p>
-      ))}
-      {data.fileURLs && data.fileURLs.map((url, index) => (
-        <img key={index} src={url} alt={data.title} style={{ width: '100%', maxHeight: '400px', objectFit: 'contain' }} />
       ))}
     </div>
   );
