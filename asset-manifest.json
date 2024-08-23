@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/HivAidsArchive/static/css/main.031d815a.css",
-    "main.js": "/HivAidsArchive/static/js/main.eb9c919a.js",
-    "static/js/453.b39bc23e.chunk.js": "/HivAidsArchive/static/js/453.b39bc23e.chunk.js",
-    "static/media/Diamons.ttf": "/HivAidsArchive/static/media/Diamons.b64043a9b9d72d35c8da.ttf",
-    "index.html": "/HivAidsArchive/index.html",
-    "main.031d815a.css.map": "/HivAidsArchive/static/css/main.031d815a.css.map",
-    "main.eb9c919a.js.map": "/HivAidsArchive/static/js/main.eb9c919a.js.map",
-    "453.b39bc23e.chunk.js.map": "/HivAidsArchive/static/js/453.b39bc23e.chunk.js.map"
+    "main.css": "/static/css/main.13432bff.css",
+    "main.js": "/static/js/main.40a7d908.js",
+    "static/js/453.b39bc23e.chunk.js": "/static/js/453.b39bc23e.chunk.js",
+    "static/media/Diamons.ttf": "/static/media/Diamons.b64043a9b9d72d35c8da.ttf",
+    "index.html": "/index.html",
+    "main.13432bff.css.map": "/static/css/main.13432bff.css.map",
+    "main.40a7d908.js.map": "/static/js/main.40a7d908.js.map",
+    "453.b39bc23e.chunk.js.map": "/static/js/453.b39bc23e.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.031d815a.css",
-    "static/js/main.eb9c919a.js"
+    "static/css/main.13432bff.css",
+    "static/js/main.40a7d908.js"
   ]
 }
