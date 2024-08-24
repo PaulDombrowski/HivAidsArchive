@@ -1,110 +1,263 @@
-import React, { useEffect } from 'react';
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import React, { useState } from 'react';
+import { db, storage } from './firebaseConfig';
+import { collection, addDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import './UploadForm.css';
 
-function Page2() {
-    useEffect(() => {
-        // Create the scene, camera, and renderer
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio); // Improve rendering quality on high DPI screens
-        renderer.setClearColor(0x000000, 0); // Transparent background
-        document.body.appendChild(renderer.domElement);
+function UploadForm() {
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [category, setCategory] = useState([]);  // Kategorie-Feld als Array initialisieren
+  const [type, setType] = useState(''); 
+  const [source, setSource] = useState('');
+  const [files, setFiles] = useState([]);
+  const [thumbnailUrl, setThumbnailUrl] = useState('');
+  const [thumbnail, setThumbnail] = useState(null);
+  const [externalLink, setExternalLink] = useState('');
+  const [additionalInfo, setAdditionalInfo] = useState(['']);
+  const [uploader, setUploader] = useState('');
+  const [motivation, setMotivation] = useState('');
+  const [mood, setMood] = useState('');
+  const [tags, setTags] = useState('');
+  const [error, setError] = useState(null);
 
-        // Add lighting to the scene
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3); // Lower intensity
-        scene.add(ambientLight);
+  // ... weitere Funktionen wie handleFileChange, handleAdditionalInfoChange, etc.
 
-        const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1); // Soft, ambient light
-        hemisphereLight.position.set(0, 1, 0);
-        scene.add(hemisphereLight);
 
-        const pointLight = new THREE.PointLight(0xffffff, 1.5, 10); // Softer light with distance
-        pointLight.position.set(0, 0, 5); // Light coming from the front
-        pointLight.castShadow = true; // Enable shadows for softer light
-        pointLight.shadow.mapSize.width = 2048; // Increase shadow quality
-        pointLight.shadow.mapSize.height = 2048; // Increase shadow quality
-        pointLight.shadow.camera.near = 0.5; // Adjust near clipping plane
-        pointLight.shadow.camera.far = 10; // Adjust far clipping plane
-        scene.add(pointLight);
+  const handleFileChange = (e) => {
+    if (e.target.files.length > 4) {
+      setError('You can upload up to 4 files only.');
+      return;
+    }
+    const newFiles = Array.from(e.target.files).filter(file => file.size <= 1048576); // 1MB = 1048576 bytes
+    if (newFiles.length !== e.target.files.length) {
+      setError('Each file must be 1MB or less.');
+      return;
+    }
+    setFiles(newFiles);
+  };
 
-        // Load the GLTF model
-        const loader = new GLTFLoader();
-        loader.load(
-            '/hivpdf.glb', // Replace with the path to your .glb file
-            (gltf) => {
-                const model = gltf.scene;
-                model.position.set(0, 0, 0); // Center the model
+  const handleAdditionalInfoChange = (index, value) => {
+    const newAdditionalInfo = [...additionalInfo];
+    newAdditionalInfo[index] = value;
+    setAdditionalInfo(newAdditionalInfo);
+  };
 
-                // Scale the model to make it smaller
-                model.scale.set(0.5, 0.5, 0.5); // Scale factor
+  const addMoreInfoField = () => {
+    setAdditionalInfo([...additionalInfo, '']);
+  };
 
-                // Correctly orient the model
-                model.rotation.x = -Math.PI / 6; // Rotate -30 degrees around the X axis to tilt backward
-                model.rotation.y = 0; // Set Y rotation to 0
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!title || !description || !category.length || !type || !uploader || !motivation || !mood) {
+      setError("Please fill in all required fields.");
+      return;
+    }
 
-                // Set material properties for better lighting effect
-                model.traverse((child) => {
-                    if (child.isMesh) {
-                        child.material = new THREE.MeshStandardMaterial({
-                            color: 0xff0000, // Red color
-                            roughness: 0.5, // Slightly rough surface
-                            metalness: 0.8 // High metalness for shininess
-                        });
-                    }
-                });
+    try {
+      let fileURLs = [];
+      for (const file of files) {
+        const storageRef = ref(storage, `uploads/${file.name}`);
+        const uploadResult = await uploadBytes(storageRef, file);
+        const fileURL = await getDownloadURL(uploadResult.ref);
+        fileURLs.push(fileURL);
+      }
 
-                scene.add(model);
-                console.log('Model loaded');
+      let thumbnailURL = thumbnailUrl;
+      if (!thumbnailUrl && thumbnail) {
+        const thumbnailRef = ref(storage, `thumbnails/${thumbnail.name}`);
+        const thumbnailUploadResult = await uploadBytes(thumbnailRef, thumbnail);
+        thumbnailURL = await getDownloadURL(thumbnailUploadResult.ref);
+      }
 
-                // Animation loop with gentle rocking motion
-                let clock = new THREE.Clock();
-                const animate = function () {
-                    requestAnimationFrame(animate);
-                    
-                    // Calculate elapsed time
-                    const elapsedTime = clock.getElapsedTime();
-                    
-                    // Rock the model back and forth
-                    model.rotation.z = 0.1 * Math.sin(elapsedTime * 2); // Gentle rocking motion around Z axis
-                    
-                    renderer.render(scene, camera);
-                };
-                animate();
-            },
-            undefined,
-            (error) => {
-                console.error('An error occurred while loading the model:', error);
-            }
-        );
+      await addDoc(collection(db, 'uploads'), {
+        title,
+        description,
+        category,  // Kategorie wird als Array gespeichert
+        type,
+        source,
+        fileURLs,
+        thumbnailURL,
+        externalLink,
+        additionalInfo: additionalInfo.filter(info => info.trim() !== ''),
+        uploader,
+        motivation,
+        mood,
+        tags: tags.split(',').map(tag => tag.trim()),
+        createdAt: new Date(),
+      });
 
-        // Position the camera
-        camera.position.set(0, 0, 5); // Move the camera closer to the model
-        camera.lookAt(0, 0, 0); // Ensure camera is looking at the center of the scene
+      // Formular zurücksetzen nach erfolgreichem Upload
+      setTitle('');
+      setDescription('');
+      setCategory([]);  // Kategorie zurücksetzen
+      setType('');
+      setSource('');
+      setFiles([]);
+      setThumbnail(null);
+      setThumbnailUrl('');
+      setExternalLink('');
+      setAdditionalInfo(['']);
+      setUploader('');
+      setMotivation('');
+      setMood('');
+      setTags('');
+      setError(null);
+      alert("Upload successful!");
+    } catch (err) {
+      console.error("Error uploading file: ", err);
+      setError("Error uploading file");
+    }
+  };
 
-        // Handle window resize
-        const handleResize = () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        };
-        window.addEventListener('resize', handleResize);
 
-        // Clean up on component unmount
-        return () => {
-            window.removeEventListener('resize', handleResize);
-            renderer.dispose();
-            document.body.removeChild(renderer.domElement);
-        };
-    }, []);
+  return (
+    <form onSubmit={handleSubmit} className="upload-form">
+      <label>
+        Title: <span className="required">*</span>
+        <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
+      </label>
+      <label>
+        Description: <span className="required">*</span>
+        <textarea value={description} onChange={(e) => setDescription(e.target.value)} required></textarea>
+      </label>
 
-    return (
-        <div style={{ height: '100vh', overflow: 'hidden' }}>
-            {/* The canvas will be appended to the body by three.js */}
+      <label>
+        Category: <span className="required">*</span>
+        <div className="category-checkboxes">
+          {[
+            "ANGER","BEAUTY", "COMFORT", "DENIAL", "FEAR", "HOPE", "INSPIRATION",
+            "LOSS", "LOVE", "MOURNING", "LIBERATION", "PAIN", "PASSION",
+            "SEX", "SHAME", "STIGMA", "STRENGTH", "TRACES ", "VIOLENCE ", 
+          ].map((cat) => (
+            <div key={cat}>
+              <input
+                type="checkbox"
+                value={cat}
+                checked={category.includes(cat)}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setCategory([...category, cat]);
+                  } else {
+                    setCategory(category.filter(c => c !== cat));
+                  }
+                }}
+              />
+              {cat}
+            </div>
+          ))}
         </div>
-    );
+      </label>
+
+     
+
+
+
+
+      <label>
+        Type: <span className="required">*</span>  {/* Type-Feld */}
+        <select value={type} onChange={(e) => setType(e.target.value)} required>
+        <option value="Advertisement">Advertisement</option>
+<option value="Article">Article</option>
+<option value="Artwork">Artwork</option>
+<option value="Audio">Audio</option>
+<option value="Book">Book</option>
+<option value="Blogpost">Blogpost</option>
+<option value="Case Study">Case Study</option>
+<option value="Collected Volume">Collected Volume</option>
+<option value="Conference Paper">Conference Paper</option>
+<option value="Dataset">Dataset</option>
+<option value="Diary">Diary</option>
+<option value="Documentary">Documentary</option>
+<option value="Essay">Essay</option>
+<option value="Exhibition">Exhibition</option>
+<option value="Film">Film</option>
+<option value="Flyer">Flyer</option>
+<option value="Interview">Interview</option>
+<option value="Journal">Journal</option>
+<option value="Legal Document">Legal Document</option>
+<option value="Letter">Letter</option>
+<option value="Magazine">Magazine</option>
+<option value="Memoir">Memoir</option>
+<option value="Monograph">Monograph</option>
+<option value="Movie">Movie</option>
+<option value="Music Video">Music Video</option>
+<option value="Newspaper">Newspaper</option>
+<option value="News Clip">News Clip</option>
+<option value="Newsletter">Newsletter</option>
+<option value="Novel">Novel</option>
+<option value="Official Document">Official Document</option>
+<option value="Oral History">Oral History</option>
+<option value="Pamphlet">Pamphlet</option>
+<option value="Photograph">Photograph</option>
+<option value="Podcast">Podcast</option>
+<option value="Poster">Poster</option>
+<option value="Presentation">Presentation</option>
+<option value="Research Paper">Research Paper</option>
+<option value="Screenshot">Screenshot</option>
+<option value="Short Story">Short Story</option>
+<option value="Social Media Comment">Social Media Comment</option>
+<option value="Social Media Post">Social Media Post</option>
+<option value="Speech">Speech</option>
+<option value="Survey">Survey</option>
+<option value="Testimony">Testimony</option>
+<option value="Thesis">Thesis</option>
+<option value="TV-Series">TV-Series</option>
+<option value="Video">Video</option>
+<option value="Website">Website</option>
+<option value="Other">Other</option>
+
+
+        </select>
+      </label>
+      <label>
+        Source (optional):  {/* Quelle-Feld */}
+        <input type="text" value={source} onChange={(e) => setSource(e.target.value)} />
+      </label>
+      <label>
+        Upload Thumbnail (optional):  {/* Thumbnail-Upload vor Thumbnail-URL */}
+        <input type="file" onChange={(e) => setThumbnail(e.target.files[0])} disabled={thumbnailUrl} />
+      </label>
+      <label>
+        Thumbnail URL (optional):  {/* Thumbnail-URL nach Thumbnail-Upload */}
+        <input type="url" value={thumbnailUrl} onChange={(e) => setThumbnailUrl(e.target.value)} disabled={thumbnail} />
+      </label>
+      <label>
+        Files (up to 4, max 1MB each):  {/* Pflichtfeld bei Files entfernt */}
+        <input type="file" onChange={handleFileChange} multiple />
+      </label>
+      <label>
+        Linked Resources:
+        {additionalInfo.map((info, index) => (
+          <input
+            key={index}
+            type="url"
+            value={info}
+            onChange={(e) => handleAdditionalInfoChange(index, e.target.value)}
+          />
+        ))}
+        <button type="button" onClick={addMoreInfoField}>Add Another URL</button>
+      </label>
+      <label>
+        Uploader: 
+        <input type="text" value={uploader} onChange={(e) => setUploader(e.target.value)} />
+      </label>
+      <label>
+        Motivation: 
+        <textarea value={motivation} onChange={(e) => setMotivation(e.target.value)} ></textarea>
+      </label>
+      <label>
+        Mood:
+        <textarea value={mood} onChange={(e) => setMood(e.target.value)} ></textarea>
+      </label>
+      <label>
+        Tags (comma separated):
+        <input type="text" value={tags} onChange={(e) => setTags(e.target.value)} />
+      </label>
+      {error && <p className="error-message">{error}</p>}
+      <button type="submit">Upload</button>
+    </form>
+  );
 }
 
-export default Page2;
+export default UploadForm;

@@ -1,71 +1,130 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import * as pdfjsLib from 'pdfjs-dist';
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+
 function Page2() {
+    const [pdf, setPdf] = useState(null);
+    const [totalPages, setTotalPages] = useState(0);
+    const canvasRefs = useRef([]);
+    const renderQueue = useRef(Promise.resolve());
+    const modelRef = useRef(null);
+    const rendererRef = useRef(null);
+    const cameraRef = useRef(null);
+    const backgroundRef = useRef(null);
+    const pdfContainerRef = useRef(null);
+
+    const publicUrl = process.env.PUBLIC_URL || '';
+
     useEffect(() => {
-        // Create the scene, camera, and renderer
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio); // Improve rendering quality on high DPI screens
-        renderer.setClearColor(0x000000, 0); // Transparent background
-        document.body.appendChild(renderer.domElement);
+        const url = `${publicUrl}/masti_upload_version-4.pdf`; // Pfad zu deinem PDF-Dokument
 
-        // Add lighting to the scene
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3); // Lower intensity
-        scene.add(ambientLight);
+        const loadingTask = pdfjsLib.getDocument(url);
+        loadingTask.promise.then(loadedPdf => {
+            setPdf(loadedPdf);
+            setTotalPages(loadedPdf.numPages);
+        }, err => {
+            console.error('Error loading PDF:', err);
+        });
+    }, [publicUrl]);
 
-        const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1); // Soft, ambient light
-        hemisphereLight.position.set(0, 1, 0);
-        scene.add(hemisphereLight);
+    useEffect(() => {
+        if (pdf && totalPages > 0) {
+            renderAllPages(pdf);
+        }
+    }, [pdf, totalPages]);
 
-        const pointLight = new THREE.PointLight(0xffffff, 1.5, 10); // Softer light with distance
-        pointLight.position.set(0, 0, 5); // Light coming from the front
-        pointLight.castShadow = true; // Enable shadows for softer light
-        pointLight.shadow.mapSize.width = 2048; // Increase shadow quality
-        pointLight.shadow.mapSize.height = 2048; // Increase shadow quality
-        pointLight.shadow.camera.near = 0.5; // Adjust near clipping plane
-        pointLight.shadow.camera.far = 10; // Adjust far clipping plane
-        scene.add(pointLight);
+    const renderAllPages = (loadedPdf) => {
+        for (let num = 1; num <= loadedPdf.numPages; num++) {
+            const canvas = canvasRefs.current[num - 1];
+            if (canvas) {
+                queueRenderPage(loadedPdf, num, canvas);
+            }
+        }
+    };
 
-        // Load the GLTF model
-        const loader = new GLTFLoader();
-        loader.load(
-            '/hivpdf.glb', // Replace with the path to your .glb file
-            (gltf) => {
-                const model = gltf.scene;
-                model.position.set(0, 0, 0); // Center the model
+    const queueRenderPage = (loadedPdf, num, canvas) => {
+        renderQueue.current = renderQueue.current.then(() => {
+            return renderPage(loadedPdf, num, canvas);
+        });
+    };
 
-                // Scale the model to make it smaller
-                model.scale.set(0.5, 0.5, 0.5); // Scale factor
+    const renderPage = (loadedPdf, num, canvas) => {
+        return new Promise((resolve, reject) => {
+            loadedPdf.getPage(num).then(page => {
+                const scale = 1.5;
+                const viewport = page.getViewport({ scale });
 
-                // Correctly orient the model
-                model.rotation.x = Math.PI / 2; // Rotate 90 degrees around the X axis
-                model.rotation.y = 0; // Set Y rotation to 0
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
 
-                // Set material properties for better lighting effect
-                model.traverse((child) => {
-                    if (child.isMesh) {
-                        child.material = new THREE.MeshStandardMaterial({
-                            color: 0xff0000, // Red color
-                            roughness: 0.5, // Slightly rough surface
-                            metalness: 0.8 // High metalness for shininess
-                        });
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: viewport,
+                    background: 'transparent',
+                };
+
+                const renderTask = page.render(renderContext);
+                renderTask.promise.then(() => {
+                    console.log(`Page ${num} rendered`);
+                    canvas.style.opacity = 0;
+                    setTimeout(() => {
+                        canvas.style.transition = 'opacity 1s';
+                        canvas.style.opacity = 1;
+                        resolve();
+                    }, 50);
+                }).catch(error => {
+                    if (error.name !== 'RenderingCancelledException') {
+                        console.error('Rendering error:', error);
+                        reject(error);
+                    } else {
+                        resolve(); // Treat canceled render as resolved
                     }
                 });
+            });
+        });
+    };
 
+    useEffect(() => {
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        cameraRef.current = camera;
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        rendererRef.current = renderer;
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x000000, 0); // Transparenter Hintergrund
+        document.getElementById('three-container').appendChild(renderer.domElement);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(0, 0, 5).normalize(); // Licht von vorne
+        scene.add(directionalLight);
+
+        const loader = new GLTFLoader();
+        loader.load(
+            `${publicUrl}/hivpdf.glb`, // Pfad zu deinem .glb-Modell
+            (gltf) => {
+                const model = gltf.scene;
+                modelRef.current = model;
+                model.scale.set(0.2, 0.2, 0.2); // Kleinere Skalierung
+                model.position.set(2, 2, 0); // Positioniere das Modell in der oberen rechten Ecke
                 scene.add(model);
-                console.log('Model loaded');
 
-                // Animation loop with very slow rotation
                 const animate = function () {
                     requestAnimationFrame(animate);
-                    // Apply very slow rotation
-                    model.rotation.y += 0.0005; // Very slow rotation around Y axis
+                    model.rotation.y += 0.002;
+                    model.rotation.x += 0.001;
+                    model.rotation.z += 0.001;
+
                     renderer.render(scene, camera);
                 };
+
                 animate();
             },
             undefined,
@@ -74,31 +133,122 @@ function Page2() {
             }
         );
 
-        // Position the camera
-        camera.position.set(0, 0, 5); // Move the camera closer to the model
-        camera.lookAt(0, 0, 0); // Ensure camera is looking at the center of the scene
+        camera.position.z = 5;
 
-        // Handle window resize
         const handleResize = () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            if (rendererRef.current && cameraRef.current) {
+                const width = window.innerWidth;
+                const height = window.innerHeight;
+                rendererRef.current.setSize(width, height);
+                cameraRef.current.aspect = width / height;
+                cameraRef.current.updateProjectionMatrix();
+
+                if (modelRef.current) {
+                    modelRef.current.position.set(2 * (width / height), 2, 0);
+                }
+            }
         };
+
         window.addEventListener('resize', handleResize);
 
-        // Clean up on component unmount
+        const handleScroll = () => {
+            if (pdfContainerRef.current) {
+                const scrollY = pdfContainerRef.current.scrollTop;
+                const scrollX = pdfContainerRef.current.scrollLeft;
+                if (backgroundRef.current) {
+                    backgroundRef.current.style.backgroundPosition = `${scrollX * 0.5}px ${scrollY * 0.5}px`; // Parallax-Effekt für beide Richtungen
+                }
+            }
+        };
+
+        if (pdfContainerRef.current) {
+            pdfContainerRef.current.addEventListener('scroll', handleScroll);
+        }
+
         return () => {
+            if (pdfContainerRef.current) {
+                pdfContainerRef.current.removeEventListener('scroll', handleScroll);
+            }
             window.removeEventListener('resize', handleResize);
             renderer.dispose();
-            document.body.removeChild(renderer.domElement);
+            document.getElementById('three-container').removeChild(renderer.domElement);
         };
-    }, []);
+    }, [publicUrl]);
 
     return (
-        <div style={{ height: '100vh', overflow: 'hidden' }}>
-            {/* The canvas will be appended to the body by three.js */}
+        <div
+            style={{
+                width: '100vw',
+                height: '100vh',
+                backgroundColor: 'transparent',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                padding: '20px 0',
+                position: 'relative',
+            }}
+        >
+            <div
+                ref={backgroundRef}
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundImage: `url(${publicUrl}/background_wieschwulistaids.jpg)`,
+                    backgroundRepeat: 'repeat',
+                    backgroundSize: 'auto', // Stellt sicher, dass das Bild in seiner ursprünglichen Größe wiederholt wird
+                    zIndex: 1,
+                    backgroundPosition: '0px 0px', // Ausgangsposition des Hintergrundbildes
+                    transition: 'background-position 0.1s linear', // Smooth scrolling
+                }}
+            />
+
+            <div
+                id="three-container"
+                style={{
+                    position: 'fixed',
+                    top: 0,
+                    right: 0,
+                    width: '100vw',
+                    height: '100vh',
+                    pointerEvents: 'none',
+                    zIndex: 3,
+                }}
+            ></div>
+
+            <div
+                ref={pdfContainerRef}
+                style={{
+                    position: 'relative',
+                    zIndex: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    width: '100%',
+                    height: '100vh',
+                    overflowY: 'scroll',
+                    overflowX: 'scroll', // Hinzufügen der horizontalen Scrollbarkeit
+                }}
+            >
+                {Array.from({ length: totalPages }, (_, i) => (
+                    <canvas
+                        key={i}
+                        ref={el => canvasRefs.current[i] = el}
+                        style={{
+                            marginBottom: '20px',
+                            maxWidth: '90%', // Breite des Canvases wie vorher
+                            boxShadow: '0px 0px 15px rgba(0, 0, 0, 0.3)',
+                            transition: 'opacity 1s ease',
+                            backgroundColor: 'transparent',
+                        }}
+                    />
+                ))}
+            </div>
         </div>
     );
 }
 
 export default Page2;
+
