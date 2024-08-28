@@ -60,7 +60,7 @@ function Page4() {
 
   return (
     <div className="page4-container">
-      <h1>Gespeicherte Daten</h1>
+      <h1>ALL RECORDS</h1>
       <div className={`hover-title ${hoverTitle ? 'show' : ''}`}>
         {hoverTitle.split(' ').map((word, index) => (
           <span key={index} style={getRandomPositionStyle()}>{word}</span>

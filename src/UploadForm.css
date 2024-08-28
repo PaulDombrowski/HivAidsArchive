@@ -1,60 +1,77 @@
 /* UploadForm.css */
+
+body, html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;  /* Verhindert globales Scrollen */
+}
+
+.upload-container {
+  height: 100vh;  /* Nimmt die volle Höhe des Viewports ein */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;  /* Verhindert Scrollen des übergeordneten Containers */
+}
+
 .upload-form {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f4f4f4;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .upload-form label {
-    display: block;
-    margin-bottom: 10px;
-    font-weight: bold;
-    color: #333;
-  }
-  
-  .upload-form input[type="text"],
-  .upload-form input[type="file"],
-  .upload-form input[type="url"],
-  .upload-form textarea,
-  .upload-form select {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-  }
-  
-  .upload-form textarea {
-    resize: vertical;
-    min-height: 100px;
-  }
-  
-  .upload-form .required {
-    color: red;
-  }
-  
-  .upload-form .error-message {
-    color: red;
-    font-weight: bold;
-    margin-bottom: 20px;
-  }
-  
-  .upload-form button[type="submit"] {
-    background-color: #007bff;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-  }
-  
-  .upload-form button[type="submit"]:hover {
-    background-color: #0056b3;
-  }
-  
+  max-width: 600px;
+  width: 100%;
+  height: 80vh;  /* Begrenze die Höhe des Formulars */
+  overflow-y: auto;  /* Erlaubt vertikales Scrollen im Formular */
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.upload-form label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #333;
+}
+
+.upload-form input[type="text"],
+.upload-form input[type="file"],
+.upload-form input[type="url"],
+.upload-form textarea,
+.upload-form select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.upload-form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.upload-form .required {
+  color: red;
+}
+
+.upload-form .error-message {
+  color: red;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.upload-form button[type="submit"] {
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.upload-form button[type="submit"]:hover {
+  background-color: #0056b3;
+}
