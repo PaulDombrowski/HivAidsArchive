@@ -1,0 +1,86 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: 'Arial', sans-serif;
+  background-color: #f0f0f0;
+  color: #333;
+  overflow: hidden;
+}
+
+.detail-page {
+  display: grid;
+  grid-template-rows: auto auto;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding: 40px;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+.detail-item {
+  position: relative;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 1s ease-in-out;
+  overflow: hidden;
+}
+
+.detail-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #000;
+}
+
+.detail-description {
+  font-size: 1.1rem;
+  color: #444;
+  line-height: 1.6;
+}
+
+.detail-info p {
+  font-size: 1rem;
+  margin: 10px 0;
+}
+
+.detail-thumbnail, .detail-image {
+  width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  animation: shake 0.5s infinite alternate;
+  transition: transform 0.2s ease-in-out;
+}
+
+.detail-thumbnail:hover, .detail-image:hover {
+  animation: none;
+  transform: scale(1.05);
+}
+
+.youtube-video iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 8px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes shake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -2px) rotate(-1deg); }
+  20% { transform: translate(-3px, 0px) rotate(1deg); }
+  30% { transform: translate(3px, 2px) rotate(0deg); }
+  40% { transform: translate(1px, -1px) rotate(1deg); }
+  50% { transform: translate(-1px, 2px) rotate(-1deg); }
+  60% { transform: translate(-3px, 1px) rotate(0deg); }
+  70% { transform: translate(3px, 1px) rotate(-1deg); }
+  80% { transform: translate(-1px, -1px) rotate(1deg); }
+  90% { transform: translate(1px, 2px) rotate(0deg); }
+  100% { transform: translate(1px, -2px) rotate(-1deg); }
+}

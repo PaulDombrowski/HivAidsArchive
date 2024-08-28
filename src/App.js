@@ -43,7 +43,7 @@ function Background({ scrollSpeed = 0.3 }) {
         left: 0,
         width: '100%',
         height: '100%',
-        backgroundImage: `url(${process.env.PUBLIC_URL}/background_wieschwulistaids.jpg)`,
+        backgroundImage: `url(${process.env.PUBLIC_URL}/33.png)`,
         backgroundRepeat: 'repeat',
         backgroundSize: 'auto',
         zIndex: 1,
