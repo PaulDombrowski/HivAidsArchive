@@ -148,12 +148,61 @@ function UploadForm() {
           </div>
         </label>
         <label>
-          Type: <span className="required">*</span>
-          <select value={type} onChange={(e) => setType(e.target.value)} required>
-            <option value="">Select Type</option>
-            {/* Weitere Optionen hier... */}
-          </select>
-        </label>
+  Type: <span className="required">*</span>  {/* Type-Feld */}
+  <select value={type} onChange={(e) => setType(e.target.value)} required>
+    <option value="Advertisement">Advertisement</option>
+    <option value="Article">Article</option>
+    <option value="Artwork">Artwork</option>
+    <option value="Audio">Audio</option>
+    <option value="Book">Book</option>
+    <option value="Blogpost">Blogpost</option>
+    <option value="Case Study">Case Study</option>
+    <option value="Collected Volume">Collected Volume</option>
+    <option value="Conference Paper">Conference Paper</option>
+    <option value="Dataset">Dataset</option>
+    <option value="Diary">Diary</option>
+    <option value="Documentary">Documentary</option>
+    <option value="Essay">Essay</option>
+    <option value="Exhibition">Exhibition</option>
+    <option value="Film">Film</option>
+    <option value="Flyer">Flyer</option>
+    <option value="Interview">Interview</option>
+    <option value="Journal">Journal</option>
+    <option value="Legal Document">Legal Document</option>
+    <option value="Letter">Letter</option>
+    <option value="Magazine">Magazine</option>
+    <option value="Memoir">Memoir</option>
+    <option value="Monograph">Monograph</option>
+    <option value="Movie">Movie</option>
+    <option value="Music Video">Music Video</option>
+    <option value="Newspaper">Newspaper</option>
+    <option value="News Clip">News Clip</option>
+    <option value="Newsletter">Newsletter</option>
+    <option value="Novel">Novel</option>
+    <option value="Official Document">Official Document</option>
+    <option value="Oral History">Oral History</option>
+    <option value="Pamphlet">Pamphlet</option>
+    <option value="Photograph">Photograph</option> 
+    <option value="Performance/Theatre">Performance/Theatre</option>
+    <option value="Podcast">Podcast</option>
+    <option value="Poster">Poster</option>
+    <option value="Presentation">Presentation</option>
+    <option value="Research Paper">Research Paper</option>
+    <option value="Screenshot">Screenshot</option>
+    <option value="Short Story">Short Story</option>
+    <option value="Social Media Comment">Social Media Comment</option>
+    <option value="Social Media Post">Social Media Post</option>
+    <option value="Speech">Speech</option>
+    <option value="Survey">Survey</option>
+    <option value="Testimony">Testimony</option>
+    <option value="Thesis">Thesis</option>
+    <option value="TV-Series">TV-Series</option>
+    <option value="Video">Video</option>
+    <option value="Website">Website</option>
+    <option value="Other">Other</option>
+  </select>
+</label>
+
         <label>
           Source (optional):
           <input type="text" value={source} onChange={(e) => setSource(e.target.value)} />

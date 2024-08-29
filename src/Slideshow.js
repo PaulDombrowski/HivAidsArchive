@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { TextureLoader } from 'three';
 import { a, useSpring } from '@react-spring/three';
 
-function ImagePlane({ position, texture, scale, onClick, delay, isThird }) {
+function ImagePlane({ position, texture, scale, onClick, delay }) {
   const [hovered, setHovered] = useState(false);
   const [touchStartTime, setTouchStartTime] = useState(0);
   const [touchStartPosition, setTouchStartPosition] = useState({ x: 0, y: 0 });
@@ -27,8 +27,8 @@ function ImagePlane({ position, texture, scale, onClick, delay, isThird }) {
   });
 
   useFrame(() => {
-    if (isThird && meshRef.current) {
-      meshRef.current.rotation.z += 0.003; // Langsame Rotation
+    if (meshRef.current && position[2] === 0) {
+      meshRef.current.rotation.z += 0.003; // Langsame Rotation nur für das erste Objekt
     }
   });
 
@@ -174,7 +174,6 @@ function Slideshow() {
     texture,
     delay: i * 300,
     onClick: () => navigate(`/page${i + 1}`),
-    isThird: i === 2,
   }));
 
   return (
@@ -187,7 +186,6 @@ function Slideshow() {
           scale={[calculatedScale, calculatedScale, calculatedScale]}
           onClick={obj.onClick}
           delay={obj.delay}
-          isThird={obj.isThird}
         />
       ))}
     </group>

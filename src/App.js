@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Canvas } from '@react-three/fiber';
 import Slideshow from './Slideshow';
@@ -10,47 +10,53 @@ import Page5 from './Page5';
 import Page6 from './Page6';
 import Page7 from './Page7';
 import DetailPage from './DetailPage';
+import './App.css'; // Für die Animation und zusätzliche Styles
 
-function Background({ scrollSpeed = 0.3 }) {
-  const backgroundRef = useRef(null);
-  const scrollPosition = useRef({ x: 0, y: 0 });
+function BackgroundText() {
+  const [backgroundColor, setBackgroundColor] = useState('#ff69b4'); // Dezenteres Rosa im Ausgangszustand
+  const timeoutRef = useRef(null);
 
-  const handleScroll = (event) => {
-    scrollPosition.current.y += event.deltaY * scrollSpeed;
-    scrollPosition.current.x += event.deltaX * scrollSpeed;
+  const handleInteraction = () => {
+    // Bei Interaktionen den Hintergrund auf Rot ändern
+    setBackgroundColor('red');
 
-    if (backgroundRef.current) {
-      backgroundRef.current.style.backgroundPosition = `${scrollPosition.current.x}px ${scrollPosition.current.y}px`;
-    }
+    // Timeout setzen, um nach einer kurzen Zeit wieder auf rosa zurückzugehen
+    clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      setBackgroundColor('#ff69b4'); // Zurück zu einem dezenteren Rosa
+    }, 500); // Nach 500ms wieder zurück
   };
 
   useEffect(() => {
-    window.addEventListener('wheel', handleScroll);
-    window.addEventListener('touchmove', handleScroll);
+    window.addEventListener('keydown', handleInteraction);
+    window.addEventListener('touchstart', handleInteraction);
+    window.addEventListener('mousedown', handleInteraction);
 
     return () => {
-      window.removeEventListener('wheel', handleScroll);
-      window.removeEventListener('touchmove', handleScroll);
+      window.removeEventListener('keydown', handleInteraction);
+      window.removeEventListener('touchstart', handleInteraction);
+      window.removeEventListener('mousedown', handleInteraction);
     };
   }, []);
 
   return (
     <div
-      ref={backgroundRef}
       style={{
-        position: 'absolute',
+        position: 'fixed',
         top: 0,
         left: 0,
-        width: '100%',
-        height: '100%',
-        backgroundImage: `url(${process.env.PUBLIC_URL}/33.png)`,
-        backgroundRepeat: 'repeat',
-        backgroundSize: 'auto',
-        zIndex: 1,
-        backgroundPosition: '0px 0px',
-        transition: 'background-position 0.15s ease-out', // Faster and smoother transition
+        width: '100vw',
+        height: '100vh',
+        overflow: 'hidden',
+        backgroundColor: backgroundColor,
+        zIndex: 0, // Ensures it stays behind other content
+        transition: 'background-color 0.5s ease', // Smooth transition between colors
       }}
-    />
+    >
+      <div className="scrolling-text">
+        HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS
+      </div>
+    </div>
   );
 }
 
@@ -59,7 +65,7 @@ function MainLayout() {
 
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden' }}>
-      {location.pathname === '/' && <Background />} {/* Only show the background on the main route */}
+      {location.pathname === '/' && <BackgroundText />}
       <Routes>
         <Route
           path="/"
