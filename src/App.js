@@ -13,29 +13,27 @@ import DetailPage from './DetailPage';
 import './App.css'; // Für die Animation und zusätzliche Styles
 
 function BackgroundText() {
-  const [backgroundColor, setBackgroundColor] = useState('#ff69b4'); // Dezenteres Rosa im Ausgangszustand
+  const [backgroundColor, setBackgroundColor] = useState('#ffffff'); // Hintergrundfarbe auf Weiß setzen
   const timeoutRef = useRef(null);
 
-  const handleInteraction = () => {
-    // Bei Interaktionen den Hintergrund auf Rot ändern
-    setBackgroundColor('red');
+  const handleScrollInteraction = (event) => {
+    const scrollKeys = ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End'];
 
-    // Timeout setzen, um nach einer kurzen Zeit wieder auf rosa zurückzugehen
-    clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => {
-      setBackgroundColor('#ff69b4'); // Zurück zu einem dezenteren Rosa
-    }, 500); // Nach 500ms wieder zurück
+    if (scrollKeys.includes(event.key)) {
+      setBackgroundColor('red');
+
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => {
+        setBackgroundColor('#ffffff'); // Zurück zu Weiß
+      }, 500); // Nach 500ms wieder zurück
+    }
   };
 
   useEffect(() => {
-    window.addEventListener('keydown', handleInteraction);
-    window.addEventListener('touchstart', handleInteraction);
-    window.addEventListener('mousedown', handleInteraction);
+    window.addEventListener('keydown', handleScrollInteraction);
 
     return () => {
-      window.removeEventListener('keydown', handleInteraction);
-      window.removeEventListener('touchstart', handleInteraction);
-      window.removeEventListener('mousedown', handleInteraction);
+      window.removeEventListener('keydown', handleScrollInteraction);
     };
   }, []);
 
@@ -51,10 +49,22 @@ function BackgroundText() {
         backgroundColor: backgroundColor,
         zIndex: 0, // Ensures it stays behind other content
         transition: 'background-color 0.5s ease', // Smooth transition between colors
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
       }}
     >
-      <div className="scrolling-text">
-        HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS
+      <div
+        className="scrolling-text"
+        style={{
+          fontSize: 'calc(100vh / 0.8)', // Passt die Schriftgröße so an, dass sie fast die gesamte Höhe einnimmt
+          lineHeight: '1',
+          color: 'red',
+          textAlign: 'center',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS&nbsp;&nbsp;HIV/AIDS
       </div>
     </div>
   );

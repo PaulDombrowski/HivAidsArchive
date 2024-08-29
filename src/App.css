@@ -1,5 +1,5 @@
 .scrolling-text {
-    font-size: calc(100vh); /* Passt die Schriftgröße an die Höhe des Viewports an */
+    font-size: calc(200vh); /* Passt die Schriftgröße an die Höhe des Viewports an */
     font-weight: bold;
     color: red;
     white-space: nowrap;
