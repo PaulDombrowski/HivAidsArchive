@@ -93,7 +93,11 @@ function Page4() {
               <td>{index + 1}</td>
               <td>{item.title}</td>
               <td>{item.type}</td>
-              <td>{item.category}</td>
+              <td className="category">
+                {item.category.map((cat, idx) => (
+                  <span key={idx} className="category-item">{cat}</span>
+                ))}
+              </td>
               <td>{item.tags.join(', ')}</td>
               <td>{new Date(item.createdAt.seconds * 1000).toLocaleString()}</td>
             </motion.tr>
