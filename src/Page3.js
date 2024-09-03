@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
-import './Page3.css'; // Importiere die CSS-Datei
+import { motion } from 'framer-motion';
+import './Page3.css';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDgxBvHfuv0izCJPwNwBd5Ou9brHzGBSqk",
@@ -23,6 +24,7 @@ function Page3() {
   const [visibleData, setVisibleData] = useState([]);
   const [hoveredItem, setHoveredItem] = useState(null);
   const [positions, setPositions] = useState([]); // Stores the random positions
+  const [hoverTitle, setHoverTitle] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,9 +47,9 @@ function Page3() {
 
   const shuffleData = (items = data) => {
     const shuffled = [...items].sort(() => 0.5 - Math.random());
-    const selectedItems = shuffled.slice(0, 15);
+    const selectedItems = shuffled.slice(0, 6); // Only select 6 items
     setVisibleData(selectedItems);
-    setPositions(selectedItems.map(() => getRandomPosition()));
+    setPositions(selectedItems.map(() => getRandomPosition())); // Generate random positions for each thumbnail
   };
 
   const getRandomPosition = () => {
@@ -56,33 +58,58 @@ function Page3() {
     return { left: `${x}px`, top: `${y}px` };
   };
 
+  const handleMouseEnter = (item) => {
+    setHoveredItem(item.id);
+    setHoverTitle(item.title);
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredItem(null);
+    setHoverTitle('');
+  };
+
   return (
     <div className="page-container">
       <h1>Entdecke die Thumbnails</h1>
       <button onClick={() => shuffleData()} className="shuffle-button">
         Shuffle
       </button>
-      <div className="thumbnail-container">
-        {visibleData.map((item, index) => (
-          <div
-            key={item.id}
-            className={`thumbnail-item ${hoveredItem === item.id ? 'hovered' : ''}`}
-            onClick={() => navigate(`/detail/${item.id}`)}
-            onMouseEnter={() => setHoveredItem(item.id)}
-            onMouseLeave={() => setHoveredItem(null)}
-            style={{ ...positions[index], backgroundImage: `url(${item.thumbnailUrl})` }} // Assuming you have a `thumbnailUrl` in your data
+
+      <div className={`hover-title ${hoverTitle ? 'show' : ''}`}>
+        {hoverTitle.split(' ').map((word, index) => (
+          <motion.span
+            key={index}
+            initial={{ opacity: 0, x: Math.random() * 50 - 25, y: Math.random() * 50 - 25 }}
+            animate={{ opacity: 1, x: 0, y: 0 }}
+            transition={{ duration: 0.5, delay: index * 0.1 }}
+            style={{ display: 'inline-block', marginRight: '5px' }}
           >
-            {hoveredItem === item.id && (
-              <div className="thumbnail-info">
-                <p><strong>Title:</strong> {item.title}</p>
-                <p><strong>Category:</strong> {item.category}</p>
-                <p><strong>Tags:</strong> {item.tags.join(', ')}</p>
-                <p><strong>Uploader:</strong> {item.uploader}</p>
-                <p><strong>Created At:</strong> {new Date(item.createdAt.seconds * 1000).toLocaleString()}</p>
-              </div>
-            )}
-          </div>
+            {word}
+          </motion.span>
         ))}
+      </div>
+
+      <div className="thumbnail-container">
+        {visibleData.map((item, index) => {
+          const backgroundImage = item.thumbnailURL || (item.fileURLs && item.fileURLs[0]);
+
+          return (
+            <div
+              key={item.id}
+              className={`thumbnail-item ${hoveredItem === item.id ? 'hovered' : ''}`}
+              onClick={() => navigate(`/detail/${item.id}`)}
+              onMouseEnter={() => handleMouseEnter(item)}
+              onMouseLeave={handleMouseLeave}
+              style={{ ...positions[index], backgroundImage: `url(${backgroundImage})` }}
+            >
+              {hoveredItem === item.id && (
+                <div className="thumbnail-info">
+                  <p><strong>{item.title}</strong></p>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

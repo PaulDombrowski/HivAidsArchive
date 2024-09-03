@@ -1,6 +1,4 @@
-
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
@@ -16,7 +14,6 @@ const firebaseConfig = {
   measurementId: "G-3DESXXFKL1"
 };
 
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -24,6 +21,8 @@ const db = getFirestore(app);
 function DetailPage() {
   const { id } = useParams();
   const [data, setData] = useState(null);
+  const [bgColor, setBgColor] = useState('white');
+  const titleRef = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,23 +43,105 @@ function DetailPage() {
     fetchData();
   }, [id]);
 
+  useEffect(() => {
+    const wrapText = (text, maxWords) => {
+      const words = text.split(' ');
+      if (words.length > maxWords) {
+        return words.reduce((acc, word, i) => {
+          return acc + (i > 0 && i % maxWords === 0 ? '\n' : ' ') + word;
+        });
+      }
+      return text;
+    };
+
+    const adjustFontSize = () => {
+      if (!titleRef.current || !data) return;  // Ensure data is loaded
+
+      const titleElement = titleRef.current;
+      const maxFontSize = window.innerWidth < 768 ? 24 : 30; // Adjust max font size based on screen size
+      const minFontSize = 14; // Min font size in pixels
+
+      // Calculate the font size based on the length of the text
+      let fontSize = Math.max(minFontSize, maxFontSize - (data.title.length * 0.2));
+      titleElement.style.fontSize = `${fontSize}px`;
+    };
+
+    const startAnimation = () => {
+      if (!titleRef.current || !data) return;  // Ensure data is loaded
+
+      adjustFontSize();
+
+      let directionX = Math.random() > 0.5 ? 1 : -1;
+      let directionY = Math.random() > 0.5 ? 1 : -1;
+      let posX = window.innerWidth / 2; // Start in the middle of the viewport
+      let posY = window.innerHeight / 2;
+      const speed = 2;
+
+      const moveTitle = () => {
+        const title = titleRef.current;
+        const titleRect = title.getBoundingClientRect();
+        const pageRect = document.documentElement.getBoundingClientRect();
+
+        // Check for collision with the right or left edges
+        if (posX + titleRect.width >= pageRect.width || posX <= 0) {
+          directionX *= -1;
+          posX = Math.max(0, Math.min(posX, pageRect.width - titleRect.width)); // Ensure the element stays within bounds
+          setBgColor(prevColor => (prevColor === 'white' ? 'red' : 'white'));
+        }
+
+        // Check for collision with the bottom or top edges
+        if (posY + titleRect.height >= pageRect.height || posY <= 0) {
+          directionY *= -1;
+          posY = Math.max(0, Math.min(posY, pageRect.height - titleRect.height)); // Ensure the element stays within bounds
+          setBgColor(prevColor => (prevColor === 'white' ? 'red' : 'white'));
+        }
+
+        posX += directionX * speed;
+        posY += directionY * speed;
+
+        title.style.transform = `translate(${posX}px, ${posY}px)`;
+
+        requestAnimationFrame(moveTitle);
+      };
+
+      moveTitle();
+    };
+
+    // Start the animation after a slight delay to ensure everything is fully loaded
+    if (data) {
+      setTimeout(() => {
+        if (titleRef.current) {
+          titleRef.current.textContent = wrapText(data.title, 5); // Wrap text after 5 words
+          startAnimation();
+        }
+      }, 1000); // 1-second delay to ensure all resources are loaded
+    }
+
+    return () => {
+      window.removeEventListener('resize', startAnimation);
+    };
+  }, [data]);
+
   if (!data) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div className="detail-page">
-      <div className="detail-image-container">
-        {data.thumbnailURL ? (
-          <img src={data.thumbnailURL} alt={data.title} className="detail-thumbnail" />
-        ) : (
-          data.fileURLs && data.fileURLs.map((url, index) => (
-            <img key={index} src={url} alt={data.title} className="detail-image" />
-          ))
-        )}
+    <div className="detail-page" style={{ backgroundColor: bgColor }}>
+      <div className="detail-title" ref={titleRef}>
+        {data.title}
       </div>
+
       <div className="detail-content">
-        {data.title && <h1 className="detail-title">{data.title}</h1>}
+        <div className="detail-image-container">
+          {data.thumbnailURL ? (
+            <img src={data.thumbnailURL} alt={data.title} className="detail-thumbnail" />
+          ) : (
+            data.fileURLs && data.fileURLs.map((url, index) => (
+              <img key={index} src={url} alt={data.title} className="detail-image" />
+            ))
+          )}
+        </div>
         {data.description && <p className="detail-description">{data.description}</p>}
         <div className="detail-info">
           {data.category && <p><strong>Category:</strong> {data.category.join(', ')}</p>}
@@ -91,6 +172,19 @@ function DetailPage() {
             {data.additionalInfo.map((info, index) => (
               <p key={index}><a href={info} target="_blank" rel="noopener noreferrer">{info}</a></p>
             ))}
+          </div>
+        )}
+
+        {data.motivation && (
+          <div className="detail-motivation">
+            <h3>Motivation:</h3>
+            <p>{data.motivation}</p>
+          </div>
+        )}
+        {data.mood && (
+          <div className="detail-mood">
+            <h3>Mood:</h3>
+            <p>{data.mood}</p>
           </div>
         )}
       </div>
