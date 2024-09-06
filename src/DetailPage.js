@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
-import './DetailPage.css';
+import './DetailPage.css'; // Hier legen wir die CSS-Animationen fest
 
 const firebaseConfig = {
   apiKey: "AIzaSyDgxBvHfuv0izCJPwNwBd5Ou9brHzGBSqk",
@@ -23,6 +23,7 @@ function DetailPage() {
   const [data, setData] = useState(null);
   const [bgColor, setBgColor] = useState('white');
   const titleRef = useRef(null);
+  const animationFrameId = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,44 +56,43 @@ function DetailPage() {
     };
 
     const adjustFontSize = () => {
-      if (!titleRef.current || !data) return;  // Ensure data is loaded
+      if (!titleRef.current || !data) return;
 
       const titleElement = titleRef.current;
-      const maxFontSize = window.innerWidth < 768 ? 24 : 30; // Adjust max font size based on screen size
-      const minFontSize = 14; // Min font size in pixels
+      const maxFontSize = window.innerWidth < 768 ? 24 : 30;
+      const minFontSize = 14;
 
-      // Calculate the font size based on the length of the text
       let fontSize = Math.max(minFontSize, maxFontSize - (data.title.length * 0.2));
       titleElement.style.fontSize = `${fontSize}px`;
     };
 
     const startAnimation = () => {
-      if (!titleRef.current || !data) return;  // Ensure data is loaded
+      if (!titleRef.current || !data) return;
 
       adjustFontSize();
 
       let directionX = Math.random() > 0.5 ? 1 : -1;
       let directionY = Math.random() > 0.5 ? 1 : -1;
-      let posX = window.innerWidth / 2; // Start in the middle of the viewport
+      let posX = window.innerWidth / 2;
       let posY = window.innerHeight / 2;
       const speed = 2;
 
       const moveTitle = () => {
+        if (!titleRef.current) return;
+
         const title = titleRef.current;
         const titleRect = title.getBoundingClientRect();
         const pageRect = document.documentElement.getBoundingClientRect();
 
-        // Check for collision with the right or left edges
         if (posX + titleRect.width >= pageRect.width || posX <= 0) {
           directionX *= -1;
-          posX = Math.max(0, Math.min(posX, pageRect.width - titleRect.width)); // Ensure the element stays within bounds
+          posX = Math.max(0, Math.min(posX, pageRect.width - titleRect.width));
           setBgColor(prevColor => (prevColor === 'white' ? 'red' : 'white'));
         }
 
-        // Check for collision with the bottom or top edges
         if (posY + titleRect.height >= pageRect.height || posY <= 0) {
           directionY *= -1;
-          posY = Math.max(0, Math.min(posY, pageRect.height - titleRect.height)); // Ensure the element stays within bounds
+          posY = Math.max(0, Math.min(posY, pageRect.height - titleRect.height));
           setBgColor(prevColor => (prevColor === 'white' ? 'red' : 'white'));
         }
 
@@ -101,24 +101,23 @@ function DetailPage() {
 
         title.style.transform = `translate(${posX}px, ${posY}px)`;
 
-        requestAnimationFrame(moveTitle);
+        animationFrameId.current = requestAnimationFrame(moveTitle);
       };
 
       moveTitle();
     };
 
-    // Start the animation after a slight delay to ensure everything is fully loaded
     if (data) {
       setTimeout(() => {
         if (titleRef.current) {
-          titleRef.current.textContent = wrapText(data.title, 5); // Wrap text after 5 words
+          titleRef.current.textContent = wrapText(data.title, 5);
           startAnimation();
         }
-      }, 1000); // 1-second delay to ensure all resources are loaded
+      }, 1000);
     }
 
     return () => {
-      window.removeEventListener('resize', startAnimation);
+      cancelAnimationFrame(animationFrameId.current); // Stop the animation when the component unmounts
     };
   }, [data]);
 
@@ -135,10 +134,19 @@ function DetailPage() {
       <div className="detail-content">
         <div className="detail-image-container">
           {data.thumbnailURL ? (
-            <img src={data.thumbnailURL} alt={data.title} className="detail-thumbnail" />
+            <img 
+              src={data.thumbnailURL} 
+              alt={data.title} 
+              className="detail-thumbnail animated-image" 
+            />
           ) : (
             data.fileURLs && data.fileURLs.map((url, index) => (
-              <img key={index} src={url} alt={data.title} className="detail-image" />
+              <img 
+                key={index} 
+                src={url} 
+                alt={data.title} 
+                className="detail-image animated-image"
+              />
             ))
           )}
         </div>

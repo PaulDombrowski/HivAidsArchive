@@ -60,3 +60,14 @@ body, html {
   border: none;
   border-radius: 8px;
 }
+
+.wave-animation {
+  filter: url(#wave);  /* SVG-Filter für das Bild */
+  width: 100%;
+  height: auto;
+}
+
+.wave-animation:hover {
+  filter: none;  /* Entfernt die Verzerrung beim Hover */
+  transition: filter 0.3s ease-in-out;
+}

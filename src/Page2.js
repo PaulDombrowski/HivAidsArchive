@@ -20,7 +20,7 @@ function Page2() {
     const publicUrl = process.env.PUBLIC_URL || '';
 
     useEffect(() => {
-        const url = `${publicUrl}/masti_upload_version-4.pdf`; // Pfad zu deinem PDF-Dokument
+        const url = `${publicUrl}/masti_upload_version-4.pdf`;
 
         const loadingTask = pdfjsLib.getDocument(url);
         loadingTask.promise.then(loadedPdf => {
@@ -96,24 +96,28 @@ function Page2() {
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         rendererRef.current = renderer;
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setClearColor(0x000000, 0); // Transparenter Hintergrund
-        document.getElementById('three-container').appendChild(renderer.domElement);
+        renderer.setClearColor(0x000000, 0);
+        const threeContainer = document.getElementById('three-container');
+
+        if (threeContainer) {
+            threeContainer.appendChild(renderer.domElement);
+        }
 
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
         scene.add(ambientLight);
 
         const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(0, 0, 5).normalize(); // Licht von vorne
+        directionalLight.position.set(0, 0, 5).normalize();
         scene.add(directionalLight);
 
         const loader = new GLTFLoader();
         loader.load(
-            `${publicUrl}/hivpdf.glb`, // Pfad zu deinem .glb-Modell
+            `${publicUrl}/hivpdf.glb`,
             (gltf) => {
                 const model = gltf.scene;
                 modelRef.current = model;
-                model.scale.set(0.2, 0.2, 0.2); // Kleinere Skalierung
-                model.position.set(2, 2, 0); // Positioniere das Modell in der oberen rechten Ecke
+                model.scale.set(0.2, 0.2, 0.2);
+                model.position.set(2, 2, 0);
                 scene.add(model);
 
                 const animate = function () {
@@ -156,7 +160,7 @@ function Page2() {
                 const scrollY = pdfContainerRef.current.scrollTop;
                 const scrollX = pdfContainerRef.current.scrollLeft;
                 if (backgroundRef.current) {
-                    backgroundRef.current.style.backgroundPosition = `${scrollX * 0.5}px ${scrollY * 0.5}px`; // Parallax-Effekt für beide Richtungen
+                    backgroundRef.current.style.backgroundPosition = `${scrollX * 0.5}px ${scrollY * 0.5}px`;
                 }
             }
         };
@@ -170,8 +174,12 @@ function Page2() {
                 pdfContainerRef.current.removeEventListener('scroll', handleScroll);
             }
             window.removeEventListener('resize', handleResize);
-            renderer.dispose();
-            document.getElementById('three-container').removeChild(renderer.domElement);
+            if (rendererRef.current) {
+                rendererRef.current.dispose();
+                if (threeContainer) {
+                    threeContainer.removeChild(rendererRef.current.domElement);
+                }
+            }
         };
     }, [publicUrl]);
 
@@ -198,10 +206,10 @@ function Page2() {
                     height: '100%',
                     backgroundImage: `url(${publicUrl}/background_wieschwulistaids.jpg)`,
                     backgroundRepeat: 'repeat',
-                    backgroundSize: 'auto', // Stellt sicher, dass das Bild in seiner ursprünglichen Größe wiederholt wird
+                    backgroundSize: 'auto',
                     zIndex: 1,
-                    backgroundPosition: '0px 0px', // Ausgangsposition des Hintergrundbildes
-                    transition: 'background-position 0.1s linear', // Smooth scrolling
+                    backgroundPosition: '0px 0px',
+                    transition: 'background-position 0.1s linear',
                 }}
             />
 
@@ -229,7 +237,7 @@ function Page2() {
                     width: '100%',
                     height: '100vh',
                     overflowY: 'scroll',
-                    overflowX: 'scroll', // Hinzufügen der horizontalen Scrollbarkeit
+                    overflowX: 'scroll',
                 }}
             >
                 {Array.from({ length: totalPages }, (_, i) => (
@@ -238,7 +246,7 @@ function Page2() {
                         ref={el => canvasRefs.current[i] = el}
                         style={{
                             marginBottom: '20px',
-                            maxWidth: '90%', // Breite des Canvases wie vorher
+                            maxWidth: '90%',
                             boxShadow: '0px 0px 15px rgba(0, 0, 0, 0.3)',
                             transition: 'opacity 1s ease',
                             backgroundColor: 'transparent',
@@ -251,4 +259,3 @@ function Page2() {
 }
 
 export default Page2;
-
