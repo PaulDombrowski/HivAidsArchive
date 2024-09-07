@@ -5,17 +5,18 @@ function GradientBackground() {
 
   useEffect(() => {
     const handleMouseMove = (event) => {
-      setMousePos({
-        x: event.clientX || event.touches[0].clientX,
-        y: event.clientY || event.touches[0].clientY
-      });
+      if (event.type === 'mousemove') {
+        setMousePos({ x: event.clientX, y: event.clientY });
+      }
     };
 
     const handleTouchMove = (event) => {
-      setMousePos({
-        x: event.touches[0].clientX,
-        y: event.touches[0].clientY
-      });
+      if (event.touches && event.touches.length > 0) {
+        setMousePos({
+          x: event.touches[0].clientX,
+          y: event.touches[0].clientY
+        });
+      }
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -30,17 +31,17 @@ function GradientBackground() {
   const gradientStyle = {
     background: `radial-gradient(
       circle at ${mousePos.x}px ${mousePos.y}px,
-      rgba(255, 20, 147, 0.8), /* Intensives Violett-Rot in der Mitte */
-      rgba(255, 105, 180, 0.6) 40%, /* Sanftes Pink */
-      rgba(211, 211, 211, 0.4) 70%, /* Helles Grau */
-      rgba(169, 169, 169, 0.2) 100% /* Dunkleres Grau außen */
+      rgba(255, 20, 147, 0.8),
+      rgba(255, 105, 180, 0.6) 20%,  /* Kleinere pinke Fläche */
+      rgba(211, 211, 211, 0.4) 40%,
+      rgba(169, 169, 169, 0.2) 60%
     )`,
     width: '100vw',
     height: '100vh',
     position: 'absolute',
     top: 0,
     left: 0,
-    zIndex: -1, // Hintergrund hinter allen Elementen
+    zIndex: -1,
     transition: 'background 0.1s ease',
   };
 

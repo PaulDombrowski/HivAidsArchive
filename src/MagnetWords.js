@@ -16,8 +16,26 @@ function generateRandomPosition() {
 
 function MagnetWords() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const numWords = 14;
+  const [numWords, setNumWords] = useState(14);
   const wordElements = [];
+
+  // Responsives Verhalten: Anpassen der Anzahl der Wörter basierend auf der Fensterbreite
+  useEffect(() => {
+    const updateNumWords = () => {
+      const width = window.innerWidth;
+      if (width < 600) {
+        setNumWords(8); // Weniger Wörter für kleine Bildschirme
+      } else if (width < 1200) {
+        setNumWords(12); // Mittelgroße Anzahl von Wörtern
+      } else {
+        setNumWords(14); // Maximale Anzahl von Wörtern für große Bildschirme
+      }
+    };
+
+    updateNumWords();
+    window.addEventListener('resize', updateNumWords);
+    return () => window.removeEventListener('resize', updateNumWords);
+  }, []);
 
   useEffect(() => {
     const handleMouseMove = (event) => {
@@ -63,10 +81,16 @@ function MagnetWords() {
             textAlign: 'left',
             zIndex: 2, // Im Vordergrund
             pointerEvents: 'none', // Klicks durchlassen
+            opacity: 0.7, // Halbtransparent
+            fontFamily: 'Arial Black',
+            fontWeight: 'bold',
+            fontSize: '1.5rem', // Kleinere Schriftgröße
+            color: 'yellow',
+            whiteSpace: 'nowrap',
           }}
         >
-          <div style={{ fontSize: '2.5rem', color: 'cyan', whiteSpace: 'nowrap' }}>{randomWord}</div>
-          <div style={{ fontSize: '2.5rem', color: 'cyan', whiteSpace: 'nowrap' }}>{secondWord}</div>
+          <div>{randomWord}</div>
+          <div>{secondWord}</div>
         </motion.div>
       );
       paired = false;
@@ -88,11 +112,14 @@ function MagnetWords() {
             position: 'absolute',
             top: initialPosition.top,
             left: initialPosition.left,
-            fontSize: '2.5rem',
-            color: 'cyan',
+            fontSize: '1.5rem', // Kleinere Schriftgröße
+            color: 'yellow',
+            fontFamily: 'Arial Black', // Arial Black Schriftart
+            fontWeight: 'bold',
             whiteSpace: 'nowrap',
             zIndex: 2, // Im Vordergrund
             pointerEvents: 'none', // Klicks durchlassen
+            opacity: 0.9, // Halbtransparent
           }}
         >
           {randomWord}
