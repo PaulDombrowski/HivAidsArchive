@@ -4,73 +4,49 @@ import { useNavigate } from 'react-router-dom';
 import { TextureLoader } from 'three';
 import { a, useSpring } from '@react-spring/three';
 
-function ImagePlane({ position, texture, scale, onClick, delay }) {
+// Function to detect browser type
+const detectBrowser = () => {
+  const userAgent = navigator.userAgent.toLowerCase();
+  if (userAgent.includes('chrome') && !userAgent.includes('edg')) {
+    return 'chrome';
+  } else if (userAgent.includes('firefox')) {
+    return 'firefox';
+  } else if (userAgent.includes('safari') && !userAgent.includes('chrome')) {
+    return 'safari';
+  }
+  return 'other';
+};
+
+function ImagePlane({ position, texture, scale, onClick, delay, isChrome }) {
   const [hovered, setHovered] = useState(false);
-  const [touchStartTime, setTouchStartTime] = useState(0);
-  const [touchStartPosition, setTouchStartPosition] = useState({ x: 0, y: 0 });
   const meshRef = useRef();
-  
-  const LONG_PRESS_DURATION = 700; // Dauer für lange Berührung (in Millisekunden)
-  const MOVE_TOLERANCE = 15; // Maximale Bewegung in Pixeln, um als langer Druck erkannt zu werden
 
   const springProps = useSpring({
     from: { position: [position[0], position[1] - 10, position[2]], opacity: 0 },
     to: { position, opacity: 1 },
-    delay, // Verzögerung der Animation für jedes Bild
-    config: { tension: 80, friction: 20 }, // Langsamere Animation
-    onRest: () => console.log(`Animation for image at position ${position} finished.`),
+    delay,
+    config: { tension: isChrome ? 40 : 80, friction: isChrome ? 10 : 20 }, // Adjust animation based on browser
   });
 
   const scaleSpring = useSpring({
-    scale: hovered ? scale.map(s => s * 1.1) : scale,
-    config: { tension: 200, friction: 10 },
+    scale: hovered ? scale.map(s => s * 1.05) : scale,
+    config: { tension: isChrome ? 150 : 200, friction: 10 }, // Simpler animation for Chrome
   });
 
   useFrame(() => {
     if (meshRef.current && position[2] === 0) {
-      meshRef.current.rotation.z += 0.003; // Langsame Rotation nur für das erste Objekt
+      meshRef.current.rotation.z += isChrome ? 0.001 : 0.003; // Slower rotation for Chrome
     }
   });
-
-  const handleTouchStart = (event) => {
-    setTouchStartTime(Date.now());
-    setTouchStartPosition({ x: event.touches[0].clientX, y: event.touches[0].clientY });
-  };
-
-  const handleTouchEnd = (event) => {
-    const touchDuration = Date.now() - touchStartTime;
-    const touchEndPosition = { x: event.changedTouches[0].clientX, y: event.changedTouches[0].clientY };
-    const deltaX = touchEndPosition.x - touchStartPosition.x;
-    const deltaY = touchEndPosition.y - touchStartPosition.y;
-
-    if (touchDuration > LONG_PRESS_DURATION && Math.abs(deltaX) < MOVE_TOLERANCE && Math.abs(deltaY) < MOVE_TOLERANCE) {
-      if (navigator.vibrate) {
-        navigator.vibrate(50); // Kurze Vibration zur Bestätigung
-      }
-      onClick();
-    }
-  };
 
   return (
     <a.mesh
       ref={meshRef}
       position={springProps.position}
       scale={scaleSpring.scale}
-      onPointerOver={() => {
-        console.log(`Hovering over image at position ${position}`);
-        setHovered(true);
-      }}
-      onPointerOut={() => {
-        console.log(`Stopped hovering over image at position ${position}`);
-        setHovered(false);
-      }}
-      onPointerDown={(e) => {
-        e.stopPropagation();
-        console.log(`Clicked on image at position ${position}`);
-        onClick();
-      }}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
+      onPointerOver={() => setHovered(true)}
+      onPointerOut={() => setHovered(false)}
+      onClick={onClick}
     >
       <planeGeometry args={[3, 3]} />
       <a.meshBasicMaterial
@@ -88,10 +64,17 @@ function Slideshow() {
   const groupRef = useRef();
   const { size } = useThree();
   const zDistance = 10;
-  const [targetZ, setTargetZ] = useState(0);
-  const [currentZ, setCurrentZ] = useState(0);
+  const [targetZ, setTargetZ] = useState(0); // Target Z position
+  const [currentZ, setCurrentZ] = useState(0); // Current Z position
+  const [isAtEnd, setIsAtEnd] = useState(false); // Track if at the last image
+  const [isHovered, setIsHovered] = useState(false); // Track hover state
+  const [isInsideScrollCircle, setIsInsideScrollCircle] = useState(false); // Track if inside the scroll circle
+
   const touchStartRef = useRef(0);
   const touchEndRef = useRef(0);
+
+  const browser = detectBrowser(); // Detect browser type
+  const isChrome = browser === 'chrome'; // Check if Chrome
 
   const images = [
     `${process.env.PUBLIC_URL}/2.png`,
@@ -106,27 +89,34 @@ function Slideshow() {
   const [loadedTextures, setLoadedTextures] = useState([]);
 
   useEffect(() => {
-    console.log('Start loading textures');
-    const loaders = images.map((path, index) =>
-      new TextureLoader().loadAsync(path)
-        .then(texture => {
-          console.log(`Loaded texture ${index + 1}: ${path}`);
-          return texture;
-        })
-        .catch((error) => {
-          console.error(`Error loading texture: ${path}`, error);
-          return null;
-        })
+    const loaders = images.map((path) =>
+      new TextureLoader().loadAsync(path).catch((error) => {
+        console.error(`Error loading texture: ${path}`, error);
+        return null;
+      })
     );
 
     Promise.all(loaders).then((textures) => {
       const filteredTextures = textures.filter(texture => texture !== null);
       setLoadedTextures(filteredTextures);
-      console.log(`Loaded ${filteredTextures.length} of ${textures.length} textures successfully.`);
     });
 
     const handleScroll = (event) => {
-      setTargetZ((prev) => Math.max(prev + event.deltaY * 0.05, 0));
+      // Only scroll when inside the scroll circle
+      if (isInsideScrollCircle) {
+        setTargetZ((prev) => {
+          const newZ = prev + event.deltaY * 0.05;
+          if (newZ >= (images.length - 1) * zDistance) {
+            setIsAtEnd(true);
+            return (images.length - 1) * zDistance; // Limit forward scrolling
+          } else if (newZ <= 0) {
+            return 0; // Limit backward scrolling
+          } else {
+            setIsAtEnd(false);
+            return newZ;
+          }
+        });
+      }
     };
 
     const handleTouchStart = (event) => {
@@ -138,8 +128,21 @@ function Slideshow() {
     };
 
     const handleTouchEnd = () => {
-      const delta = touchStartRef.current - touchEndRef.current;
-      setTargetZ((prev) => Math.max(prev + delta * 0.05, 0));
+      if (isInsideScrollCircle) {
+        const delta = touchStartRef.current - touchEndRef.current;
+        setTargetZ((prev) => {
+          const newZ = prev + delta * 0.05;
+          if (newZ >= (images.length - 1) * zDistance) {
+            setIsAtEnd(true);
+            return (images.length - 1) * zDistance; // Limit forward scrolling on touch
+          } else if (newZ <= 0) {
+            return 0; // Limit backward scrolling on touch
+          } else {
+            setIsAtEnd(false);
+            return newZ;
+          }
+        });
+      }
     };
 
     window.addEventListener('wheel', handleScroll);
@@ -148,13 +151,12 @@ function Slideshow() {
     window.addEventListener('touchend', handleTouchEnd);
 
     return () => {
-      console.log('Cleaning up event listeners');
       window.removeEventListener('wheel', handleScroll);
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('touchend', handleTouchEnd);
     };
-  }, []);
+  }, [images.length, zDistance, isInsideScrollCircle]);
 
   useFrame(() => {
     if (groupRef.current) {
@@ -166,7 +168,7 @@ function Slideshow() {
     }
   });
 
-  const maxImageScale = 0.6;
+  const maxImageScale = 0.4;
   const calculatedScale = Math.min(size.width / 1500, size.height / 1500, maxImageScale);
 
   const objects = loadedTextures.map((texture, i) => ({
@@ -177,7 +179,19 @@ function Slideshow() {
   }));
 
   return (
-    <group ref={groupRef}>
+    <group
+      ref={groupRef}
+      onPointerOver={() => setIsHovered(true)} // Detect hover to speed up rotation
+      onPointerOut={() => setIsHovered(false)}
+      onPointerMove={(e) => {
+        const circleRadius = 12;
+        const x = e.point.x;
+        const y = e.point.y;
+        // Check if cursor is inside the scroll circle
+        const isInside = Math.sqrt(x * x + y * y) <= circleRadius;
+        setIsInsideScrollCircle(isInside);
+      }}
+    >
       {objects.map((obj, i) => (
         <ImagePlane
           key={i}
@@ -186,6 +200,7 @@ function Slideshow() {
           scale={[calculatedScale, calculatedScale, calculatedScale]}
           onClick={obj.onClick}
           delay={obj.delay}
+          isChrome={isChrome} // Pass whether it's Chrome to adjust animations
         />
       ))}
     </group>

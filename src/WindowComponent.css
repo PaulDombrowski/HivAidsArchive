@@ -1,0 +1,28 @@
+.window {
+    background-color: white;
+    border: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.5s ease; /* Smooth Transition */
+  }
+  
+  .window.active {
+    background-color: #ffcccc; /* Aktives Fenster */
+  }
+  
+  .window.inactive {
+    background-color: #cccccc; /* Inaktives Fenster */
+  }
+  
+  .active-content h1 {
+    font-size: 48px;
+    font-family: 'Arial Black', sans-serif;
+    color: red;
+  }
+  
+  .passive-content p {
+    font-size: 18px;
+    color: gray;
+  }
+  

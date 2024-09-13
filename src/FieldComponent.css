@@ -1,0 +1,35 @@
+.field {
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .field.active {
+    background-color: #ffcccc;
+    border-color: #ff6666;
+    transform: scale(1.1); /* Vergrößert das aktive Feld */
+  }
+  
+  .field.passive {
+    background-color: #cccccc;
+    border-color: #aaa;
+  }
+  
+  .content {
+    text-align: center;
+  }
+  
+  .content h1 {
+    font-size: 36px;
+    color: red;
+  }
+  
+  .content p {
+    font-size: 24px;
+    color: gray;
+  }
+  
