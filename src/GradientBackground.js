@@ -7,7 +7,7 @@ import MagnetWords from './MagnetWords'; // Importiere MagnetWords-Komponente
 
 // Custom component to load the 3D model
 function Model({ isChrome }) {
-  const { scene } = useGLTF('/hivpdf.glb');
+  const { scene } = useGLTF(`${process.env.PUBLIC_URL}/hivpdf.glb`); // Verwende process.env.PUBLIC_URL für das 3D-Modell
   
   // Apply material properties to the model
   useEffect(() => {
@@ -90,7 +90,7 @@ function RedInteractiveBackground() {
 
   // Background image style
   const backgroundImageStyle = {
-    backgroundImage: `url('/_0X5f0CK.jpeg')`,
+    backgroundImage: `url(${process.env.PUBLIC_URL}/_0X5f0CK.jpeg)`, // Verwende process.env.PUBLIC_URL für das Hintergrundbild
     backgroundRepeat: 'repeat',
     backgroundSize: 'cover',
     backgroundPosition: `${scrollOffset}px ${scrollOffset}px`,
