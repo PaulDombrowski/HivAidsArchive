@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/HivAidsArchive/static/css/main.f122837c.css",
-    "main.js": "/HivAidsArchive/static/js/main.4c4545f4.js",
+    "main.js": "/HivAidsArchive/static/js/main.f28c42f0.js",
     "static/js/453.b39bc23e.chunk.js": "/HivAidsArchive/static/js/453.b39bc23e.chunk.js",
     "static/media/Diamons.ttf": "/HivAidsArchive/static/media/Diamons.b64043a9b9d72d35c8da.ttf",
     "index.html": "/HivAidsArchive/index.html",
     "main.f122837c.css.map": "/HivAidsArchive/static/css/main.f122837c.css.map",
-    "main.4c4545f4.js.map": "/HivAidsArchive/static/js/main.4c4545f4.js.map",
+    "main.f28c42f0.js.map": "/HivAidsArchive/static/js/main.f28c42f0.js.map",
     "453.b39bc23e.chunk.js.map": "/HivAidsArchive/static/js/453.b39bc23e.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.f122837c.css",
-    "static/js/main.4c4545f4.js"
+    "static/js/main.f28c42f0.js"
   ]
 }
