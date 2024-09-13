@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import GradientBackground from './GradientBackground'; // Statische relative Pfade
+import GradientBackground from './GradientBackground';
 import Page1 from './Page1';
 import Page2 from './Page2';
 import Page3 from './Page3';
@@ -85,7 +85,7 @@ function MainLayout() {
               zIndex: 1000, // Erhöhte Priorität, damit es über allen anderen Elementen ist
               cursor: 'pointer',
             }}
-            onClick={handleGradientClick}
+            onClick={handleGradientClick} // Click handler only on the GradientBackground
           >
             <GradientBackground />
           </motion.div>
@@ -105,9 +105,7 @@ function MainLayout() {
                 variants={pageVariants}
                 transition={pageTransition}
                 style={{ position: 'relative', zIndex: 1, width: '100vw', height: '100vh' }}
-              >
-                {/* No Slideshow here */}
-              </motion.div>
+              />
             }
           />
           <Route
@@ -121,7 +119,6 @@ function MainLayout() {
                 transition={pageTransition}
                 style={{ position: 'relative', zIndex: 1, width: '100vw', height: '100vh' }}
               >
-                {/* Page content that fades in */}
                 <motion.div
                   initial="hidden"
                   animate="visible"
@@ -133,7 +130,14 @@ function MainLayout() {
               </motion.div>
             }
           />
-          {/* Weitere Routen */}
+          {/* Repeat similar structure for the rest of the pages */}
+          <Route path="/page2" element={<Page2 />} />
+          <Route path="/page3" element={<Page3 />} />
+          <Route path="/page4" element={<Page4 />} />
+          <Route path="/page5" element={<Page5 />} />
+          <Route path="/page6" element={<Page6 />} />
+          <Route path="/page7" element={<Page7 />} />
+          <Route path="/detail/:id" element={<DetailPage />} />
         </Routes>
       </AnimatePresence>
     </div>
@@ -141,11 +145,8 @@ function MainLayout() {
 }
 
 function App() {
-  const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  const basename = isLocalhost ? '/' : process.env.PUBLIC_URL;
-
   return (
-    <Router basename={basename}>
+    <Router>
       <MainLayout />
     </Router>
   );
