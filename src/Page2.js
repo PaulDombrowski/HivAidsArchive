@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { motion } from 'framer-motion'; // Import framer-motion
+import CursorComponent from './CursorComponent';
+import RightTextComponent from './RightTextComponent'; // Import the RightTextComponent
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
@@ -11,11 +12,8 @@ function Page2() {
     const [totalPages, setTotalPages] = useState(0);
     const canvasRefs = useRef([]);
     const renderQueue = useRef(Promise.resolve());
-    const modelRef = useRef(null);
-    const rendererRef = useRef(null);
-    const cameraRef = useRef(null);
-    const backgroundRef = useRef(null);
     const pdfContainerRef = useRef(null);
+    const textContainerRef = useRef(null);
 
     const publicUrl = process.env.PUBLIC_URL || '';
 
@@ -89,79 +87,12 @@ function Page2() {
         });
     };
 
+    // Sync scroll between the PDF and the text in opposite directions and at different speeds
     useEffect(() => {
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        cameraRef.current = camera;
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        rendererRef.current = renderer;
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setClearColor(0x000000, 0);
-        const threeContainer = document.getElementById('three-container');
-
-        if (threeContainer) {
-            threeContainer.appendChild(renderer.domElement);
-        }
-
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
-        scene.add(ambientLight);
-
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(0, 0, 5).normalize();
-        scene.add(directionalLight);
-
-        const loader = new GLTFLoader();
-        loader.load(
-            `${publicUrl}/hivpdf.glb`,
-            (gltf) => {
-                const model = gltf.scene;
-                modelRef.current = model;
-                model.scale.set(0.2, 0.2, 0.2);
-                model.position.set(2, 2, 0);
-                scene.add(model);
-
-                const animate = function () {
-                    requestAnimationFrame(animate);
-                    model.rotation.y += 0.002;
-                    model.rotation.x += 0.001;
-                    model.rotation.z += 0.001;
-
-                    renderer.render(scene, camera);
-                };
-
-                animate();
-            },
-            undefined,
-            (error) => {
-                console.error('An error occurred while loading the model:', error);
-            }
-        );
-
-        camera.position.z = 5;
-
-        const handleResize = () => {
-            if (rendererRef.current && cameraRef.current) {
-                const width = window.innerWidth;
-                const height = window.innerHeight;
-                rendererRef.current.setSize(width, height);
-                cameraRef.current.aspect = width / height;
-                cameraRef.current.updateProjectionMatrix();
-
-                if (modelRef.current) {
-                    modelRef.current.position.set(2 * (width / height), 2, 0);
-                }
-            }
-        };
-
-        window.addEventListener('resize', handleResize);
-
         const handleScroll = () => {
-            if (pdfContainerRef.current) {
+            if (pdfContainerRef.current && textContainerRef.current) {
                 const scrollY = pdfContainerRef.current.scrollTop;
-                const scrollX = pdfContainerRef.current.scrollLeft;
-                if (backgroundRef.current) {
-                    backgroundRef.current.style.backgroundPosition = `${scrollX * 0.5}px ${scrollY * 0.5}px`;
-                }
+                textContainerRef.current.scrollTop = scrollY * 0.5; // Scrolls in the same direction, but slower
             }
         };
 
@@ -173,15 +104,8 @@ function Page2() {
             if (pdfContainerRef.current) {
                 pdfContainerRef.current.removeEventListener('scroll', handleScroll);
             }
-            window.removeEventListener('resize', handleResize);
-            if (rendererRef.current) {
-                rendererRef.current.dispose();
-                if (threeContainer) {
-                    threeContainer.removeChild(rendererRef.current.domElement);
-                }
-            }
         };
-    }, [publicUrl]);
+    }, []);
 
     return (
         <div
@@ -190,55 +114,29 @@ function Page2() {
                 height: '100vh',
                 backgroundColor: 'transparent',
                 display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                padding: '20px 0',
+                flexDirection: 'row',
+                alignItems: 'flex-start',
                 position: 'relative',
             }}
         >
-            <div
-                ref={backgroundRef}
-                style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    backgroundImage: `url(${publicUrl}/background_wieschwulistaids.jpg)`,
-                    backgroundRepeat: 'repeat',
-                    backgroundSize: 'auto',
-                    zIndex: 1,
-                    backgroundPosition: '0px 0px',
-                    transition: 'background-position 0.1s linear',
-                }}
-            />
-
-            <div
-                id="three-container"
-                style={{
-                    position: 'fixed',
-                    top: 0,
-                    right: 0,
-                    width: '100vw',
-                    height: '100vh',
-                    pointerEvents: 'none',
-                    zIndex: 3,
-                }}
-            ></div>
-
-            <div
+            {/* PDF Rendering */}
+            <motion.div
                 ref={pdfContainerRef}
                 style={{
-                    position: 'relative',
+                    flex: '1',
                     zIndex: 2,
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    width: '100%',
                     height: '100vh',
                     overflowY: 'scroll',
-                    overflowX: 'scroll',
+                    overflowX: 'hidden',
+                    perspective: '1000px', // Adds 3D perspective
+                    scrollbarWidth: 'none', // Hide scrollbar for Firefox
+                    msOverflowStyle: 'none', // Hide scrollbar for IE and Edge
                 }}
+                animate={{ x: 0, y: 0 }}
+                transition={{ ease: 'easeOut', duration: 1 }} // Smooth scroll effect for PDF container
             >
                 {Array.from({ length: totalPages }, (_, i) => (
                     <canvas
@@ -247,13 +145,52 @@ function Page2() {
                         style={{
                             marginBottom: '20px',
                             maxWidth: '90%',
-                            boxShadow: '0px 0px 15px rgba(0, 0, 0, 0.3)',
-                            transition: 'opacity 1s ease',
+                            transition: 'transform 1s ease, opacity 1s ease',
                             backgroundColor: 'transparent',
+                            transform: `rotateX(${i % 2 === 0 ? 10 : -10}deg) rotateY(${i % 2 === 0 ? -10 : 10}deg)`,
+                            boxShadow: '0px 10px 30px rgba(255, 0, 0, 0.5)', // More noticeable and reddish shadow
+                            opacity: 0.9, // Slight transparency for the PDF
                         }}
                     />
                 ))}
-            </div>
+            </motion.div>
+
+            {/* Right Text Component - Scrolls with PDF in the opposite direction, but slower */}
+            <motion.div
+                ref={textContainerRef}
+                style={{
+                    flexBasis: '300px', // Increased width of the text container
+                    height: '100vh',
+                    overflowY: 'scroll', // Enable scrolling for the text container
+                    color: '#9370DB', // Light purple (flieder) text color
+                    fontSize: '12px', // Small text
+                    padding: '10px',
+                    textAlign: 'right',
+                    zIndex: 3,
+                    position: 'relative',
+                    transform: 'rotateY(30deg)', // Adds 30-degree 3D rotation on the Y-axis
+                    transformStyle: 'preserve-3d',
+                    transition: 'scroll 0.2s ease-in-out', // Smooth lazy scrolling
+                    scrollbarWidth: 'none', // Hide scrollbar for Firefox
+                    msOverflowStyle: 'none', // Hide scrollbar for IE and Edge
+                }}
+            >
+                <RightTextComponent />
+
+                {/* Link Styling */}
+                <style jsx>{`
+                    a {
+                        color: #FF0000; /* Red links */
+                        text-decoration: none;
+                    }
+                    a:hover {
+                        text-decoration: underline;
+                    }
+                `}</style>
+            </motion.div>
+
+            {/* Custom Cursor */}
+            <CursorComponent />
         </div>
     );
 }

@@ -15,7 +15,7 @@ function Model({ isChrome }) {
       if (object.isMesh) {
         object.material = new THREE.MeshStandardMaterial({
           color: new THREE.Color(0xFF0000), // Red color
-          metalness: 0.7,
+          metalness: 0.3,
           roughness: 0.1,
           emissive: new THREE.Color(0xFF0000), // Slight red glow
           emissiveIntensity: 0.3,
@@ -90,7 +90,7 @@ function RedInteractiveBackground() {
 
   // Background image style
   const backgroundImageStyle = {
-    backgroundImage: `url(${process.env.PUBLIC_URL}/_0X5f0CK.jpeg)`, // Verwende process.env.PUBLIC_URL für das Hintergrundbild
+    backgroundImage: `url(${process.env.PUBLIC_URL}/0X5f0CK.jpeg)`, // Verwende process.env.PUBLIC_URL für das Hintergrundbild
     backgroundRepeat: 'repeat',
     backgroundSize: 'cover',
     backgroundPosition: `${scrollOffset}px ${scrollOffset}px`,
@@ -108,10 +108,10 @@ function RedInteractiveBackground() {
   const gucklockStyle = {
     background: `radial-gradient(
       circle at ${mousePos.x}px ${mousePos.y}px,
-      rgba(255, 0, 0, 1) 5px,
-      rgba(255, 0, 0, 0.6) 70px,
-      rgba(255, 0, 0, 0.4) 100px,
-      rgba(0, 0, 0, 1) 150px
+      rgba(255, 0, 0, 1) 9px,
+      rgba(255, 0, 0, 0.2) 70px,
+      rgba(255, 0, 0, 0.2) 90px,
+      rgba(245, 245, 245, 1) 150px
     )`,
     boxShadow: `0 0 30px 20px rgba(255, 0, 0, 0.5)`,
     width: '100vw',

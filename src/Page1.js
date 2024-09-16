@@ -5,40 +5,11 @@ import { Canvas } from '@react-three/fiber'; // Import Canvas for Three.js conte
 import Slideshow from './Slideshow'; // Import the Slideshow component
 
 const Page1 = () => {
-  const leftTextRef = useRef(null);
   const rightTextRef = useRef(null);
   const slideshowRef = useRef(null); // Slideshow reference
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [backgroundGradient, setBackgroundGradient] = useState('rgba(245, 245, 245, 1)');
-  const [leftTransform, setLeftTransform] = useState({ x: 0, y: 0 });
   const [rightTransform, setRightTransform] = useState({ x: 0, y: 0 });
-  const [scrollDirection, setScrollDirection] = useState(1); // Scroll direction: 1 = down, -1 = up
-
-  useEffect(() => {
-    // Auto-scrolling logic for the left text
-    let scrollSpeed = 0.5; // Speed of the scroll
-    const leftContainer = leftTextRef.current;
-
-    const autoScroll = () => {
-      if (leftContainer) {
-        leftContainer.scrollTop += scrollSpeed * scrollDirection;
-
-        // Reverse the scroll direction when reaching the top or bottom
-        if (leftContainer.scrollTop + leftContainer.clientHeight >= leftContainer.scrollHeight) {
-          setScrollDirection(-1); // Scroll up
-        } else if (leftContainer.scrollTop <= 0) {
-          setScrollDirection(1); // Scroll down
-        }
-      }
-      requestAnimationFrame(autoScroll); // Continue scrolling
-    };
-
-    requestAnimationFrame(autoScroll); // Start the scrolling loop
-
-    return () => {
-      cancelAnimationFrame(autoScroll); // Cleanup on component unmount
-    };
-  }, [scrollDirection]);
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -68,13 +39,6 @@ const Page1 = () => {
     };
   }, []);
 
-  const handleLeftTextTransform = (e) => {
-    setLeftTransform({
-      x: e.clientX / 100, // Adjust the multiplier to control the speed of transformation
-      y: e.clientY / 100,
-    });
-  };
-
   const handleRightTextTransform = (e) => {
     setRightTransform({
       x: e.clientX / 100,
@@ -103,19 +67,14 @@ const Page1 = () => {
         <p style={styles.verticalText}>DIGITAL TRACES _CURATING AN HIV ARCHIVE</p>
       </div>
 
-      {/* Left text (previously right) comes next */}
-      <div
-        style={{
-          ...styles.leftTextWrapper,
-          transform: `translate(${leftTransform.x}px, ${leftTransform.y}px) rotateX(0deg) rotateY(40deg)`, // Apply the 3D transformation here
-        }}
-        ref={leftTextRef}
-        onMouseMove={handleLeftTextTransform}
-      >
-        <RightTextComponent /> {/* Component for the right text but it's now in the left position */}
+      {/* Slideshow */}
+      <div style={styles.slideshowOverlay}>
+        <Canvas camera={{ position: [1, 0, 5], fov: 40 }} style={{ width: '100%', height: '100%' }}>
+          <Slideshow />
+        </Canvas>
       </div>
 
-      {/* Right text (previously left) comes after */}
+      {/* Right text */}
       <div
         style={{
           ...styles.rightTextWrapper,
@@ -124,14 +83,7 @@ const Page1 = () => {
         ref={rightTextRef}
         onMouseMove={handleRightTextTransform}
       >
-        <LeftTextComponent /> {/* Component for the left text but it's now in the right position */}
-      </div>
-
-      {/* Slideshow on the far right covering the full viewport */}
-      <div style={styles.slideshowContainer} ref={slideshowRef}>
-        <Canvas camera={{ position: [-1, 0, 5], fov: 40 }} style={{ width: '100vw', height: '100vh' }}>
-          <Slideshow />
-        </Canvas>
+        <LeftTextComponent /> {/* Component for the left text but it's now on the right */}
       </div>
     </div>
   );
@@ -141,7 +93,7 @@ const Page1 = () => {
 const styles = {
   pageContainer: {
     display: 'flex',
-    justifyContent: 'space-between', // Ensure equal spacing between left and right elements
+    justifyContent: 'space-between', // Ensure equal spacing between elements
     alignItems: 'flex-start',
     height: '100vh',
     width: '100%',
@@ -151,6 +103,7 @@ const styles = {
     overflow: 'hidden', // Prevent scrolling the whole page
     cursor: 'none', // Hide default cursor
     transition: 'background 0.3s ease', // Smooth transition for the background gradient
+    position: 'relative', // Ensure absolute positioning works within this container
   },
 
   verticalTextContainer: {
@@ -166,23 +119,6 @@ const styles = {
     letterSpacing: '5px',
   },
 
-  // Swapped left and right wrappers
-  leftTextWrapper: {
-    width: '16%', // Adjust width to control spacing
-    height: '100vh',
-    overflowY: 'scroll', // Enable vertical scrolling for left text
-    fontSize: '0.85rem',
-    fontFamily: 'Arial, sans-serif',
-    lineHeight: '1.5',
-    textAlign: 'right',
-    zIndex: 3, // Right text in the foreground
-    padding: '10px 30px', // Adds padding to move text inward
-    marginRight: '10px', // Adjust margin to move closer to the right text
-    scrollbarWidth: 'none', // Hide scrollbar for Firefox
-    msOverflowStyle: 'none', // Hide scrollbar for Internet Explorer and Edge
-    transformStyle: 'preserve-3d', // Preserve 3D effect for children
-  },
-
   rightTextWrapper: {
     width: '30%',
     height: '100vh',
@@ -191,23 +127,22 @@ const styles = {
     fontFamily: 'Arial, sans-serif',
     lineHeight: '1.5',
     textAlign: 'left',
-    zIndex: 2, // Left text stays in foreground
+    zIndex: 3, // Right text stays in the foreground
     padding: '0px 30px', // Adds padding to move text inward
     marginLeft: '10px',
-    marginRight: '400px',  // Adjust margin to move closer to the left text
+    marginRight: '400px', // Adjust margin to move closer to the left text
     scrollbarWidth: 'none', // Hide scrollbar for Firefox
     msOverflowStyle: 'none', // Hide scrollbar for Internet Explorer and Edge
     transformStyle: 'preserve-3d', // Preserve 3D effect for children
-    pointerEvents: 'none' // Durchklickbar machen
   },
 
-  slideshowContainer: {
-    position: 'fixed', // Cover the entire viewport
-    top: 0,
-    right: 0, // Positioned on the far right
-    width: '100vw',
-    height: '100vh',
-    zIndex: 1, // Behind the text but still interactive
+  slideshowOverlay: {
+    position: 'absolute', // Allow the slideshow to overlay all other content
+    left: '-100px', // Move the slideshow 100px to the left
+    top: '0',
+    width: '60%', // Define width to cover most of the viewport
+    height: '100%',
+    zIndex: 1, // Behind text, but on top of the background
     pointerEvents: 'auto', // Allow interaction with the canvas
   },
 

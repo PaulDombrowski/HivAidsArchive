@@ -408,6 +408,7 @@ const styles = {
   link: {
     color: 'black',
     textDecoration: 'underline',
+    zindex: 100, 
   },
 };
 

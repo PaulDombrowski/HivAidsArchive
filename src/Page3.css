@@ -76,20 +76,29 @@
 }
 
 /* Animation für den Hover-Titel */
+
+
 .hover-title {
   font-family: 'CustomFont', sans-serif;
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) rotate(15deg); /* Leichter Schrägstellung nach rechts unten */
   font-size: 1rem;
   color: red;
   opacity: 0;
   white-space: nowrap;
   pointer-events: none;
   z-index: 1000;
+  letter-spacing: -0.1em; /* Noch näher zusammenrücken */
 }
 
 .hover-title.show {
   opacity: 1;
+  transform: translate(-50%, -50%) rotate(15deg) scale(1.2); /* Leichte Schräglage und stärkeres Skalieren */
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.hover-title.show::after {
+  content: none; /* Entfernt den Unterstrich */
 }

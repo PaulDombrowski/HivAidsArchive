@@ -3,8 +3,9 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { useNavigate } from 'react-router-dom';
 import { TextureLoader } from 'three';
 import { a, useSpring } from '@react-spring/three';
+import { Html } from '@react-three/drei';
+import './Slideshow.css';
 
-// Function to detect browser type
 const detectBrowser = () => {
   const userAgent = navigator.userAgent.toLowerCase();
   if (userAgent.includes('chrome') && !userAgent.includes('edg')) {
@@ -17,7 +18,7 @@ const detectBrowser = () => {
   return 'other';
 };
 
-function ImagePlane({ position, texture, scale, onClick, delay, isChrome }) {
+function ImagePlane({ position, texture, scale, onClick, delay, isChrome, title, onHover }) {
   const [hovered, setHovered] = useState(false);
   const meshRef = useRef();
 
@@ -25,17 +26,17 @@ function ImagePlane({ position, texture, scale, onClick, delay, isChrome }) {
     from: { position: [position[0], position[1] - 10, position[2]], opacity: 0 },
     to: { position, opacity: 1 },
     delay,
-    config: { tension: isChrome ? 40 : 80, friction: isChrome ? 10 : 20 }, // Adjust animation based on browser
+    config: { tension: isChrome ? 40 : 80, friction: isChrome ? 10 : 20 },
   });
 
   const scaleSpring = useSpring({
     scale: hovered ? scale.map(s => s * 1.05) : scale,
-    config: { tension: isChrome ? 150 : 200, friction: 10 }, // Simpler animation for Chrome
+    config: { tension: isChrome ? 150 : 200, friction: 10 },
   });
 
   useFrame(() => {
     if (meshRef.current && position[2] === 0) {
-      meshRef.current.rotation.z += isChrome ? 0.001 : 0.003; // Slower rotation for Chrome
+      meshRef.current.rotation.z += isChrome ? 0.001 : 0.003;
     }
   });
 
@@ -44,8 +45,14 @@ function ImagePlane({ position, texture, scale, onClick, delay, isChrome }) {
       ref={meshRef}
       position={springProps.position}
       scale={scaleSpring.scale}
-      onPointerOver={() => setHovered(true)}
-      onPointerOut={() => setHovered(false)}
+      onPointerOver={() => {
+        setHovered(true);
+        onHover(title);
+      }}
+      onPointerOut={() => {
+        setHovered(false);
+        onHover(null);
+      }}
       onClick={onClick}
     >
       <planeGeometry args={[3, 3]} />
@@ -64,34 +71,31 @@ function Slideshow() {
   const groupRef = useRef();
   const { size } = useThree();
   const zDistance = 10;
-  const [targetZ, setTargetZ] = useState(0); // Target Z position
-  const [currentZ, setCurrentZ] = useState(0); // Current Z position
-  const [isAtEnd, setIsAtEnd] = useState(false); // Track if at the last image
-  const [isHovered, setIsHovered] = useState(false); // Track hover state
-  const [isInsideScrollCircle, setIsInsideScrollCircle] = useState(false); // Track if inside the scroll circle
+  const [targetZ, setTargetZ] = useState(0);
+  const [currentZ, setCurrentZ] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isInsideScrollCircle, setIsInsideScrollCircle] = useState(false);
+  const [hoveredTitle, setHoveredTitle] = useState(null);
 
-  const touchStartRef = useRef(0);
-  const touchEndRef = useRef(0);
-
-  const browser = detectBrowser(); // Detect browser type
-  const isChrome = browser === 'chrome'; // Check if Chrome
+  const browser = detectBrowser();
+  const isChrome = browser === 'chrome';
 
   const images = [
-    `${process.env.PUBLIC_URL}/2.png`,
-    `${process.env.PUBLIC_URL}/3.png`,
-    `${process.env.PUBLIC_URL}/4.png`,
-    `${process.env.PUBLIC_URL}/5.png`,
-    `${process.env.PUBLIC_URL}/6.png`,
-    `${process.env.PUBLIC_URL}/7.png`,
-    `${process.env.PUBLIC_URL}/8.png`,
+    { path: `${process.env.PUBLIC_URL}/2.png`, title: 'Shuffle' },
+    { path: `${process.env.PUBLIC_URL}/3.png`, title: 'Database' },
+    { path: `${process.env.PUBLIC_URL}/4.png`, title: 'Search' },
+    { path: `${process.env.PUBLIC_URL}/5.png`, title: 'Upload' },
+    { path: `${process.env.PUBLIC_URL}/6.png`, title: 'Thesis' },
+    { path: `${process.env.PUBLIC_URL}/7.png`, title: 'Impress' },
+    { path: `${process.env.PUBLIC_URL}/8.png`, title: 'Image 7' },
   ];
 
   const [loadedTextures, setLoadedTextures] = useState([]);
 
   useEffect(() => {
-    const loaders = images.map((path) =>
-      new TextureLoader().loadAsync(path).catch((error) => {
-        console.error(`Error loading texture: ${path}`, error);
+    const loaders = images.map((img) =>
+      new TextureLoader().loadAsync(img.path).catch((error) => {
+        console.error(`Error loading texture: ${img.path}`, error);
         return null;
       })
     );
@@ -102,43 +106,14 @@ function Slideshow() {
     });
 
     const handleScroll = (event) => {
-      // Only scroll when inside the scroll circle
       if (isInsideScrollCircle) {
         setTargetZ((prev) => {
           const newZ = prev + event.deltaY * 0.05;
           if (newZ >= (images.length - 1) * zDistance) {
-            setIsAtEnd(true);
-            return (images.length - 1) * zDistance; // Limit forward scrolling
+            return (images.length - 1) * zDistance;
           } else if (newZ <= 0) {
-            return 0; // Limit backward scrolling
+            return 0;
           } else {
-            setIsAtEnd(false);
-            return newZ;
-          }
-        });
-      }
-    };
-
-    const handleTouchStart = (event) => {
-      touchStartRef.current = event.touches[0].clientY;
-    };
-
-    const handleTouchMove = (event) => {
-      touchEndRef.current = event.touches[0].clientY;
-    };
-
-    const handleTouchEnd = () => {
-      if (isInsideScrollCircle) {
-        const delta = touchStartRef.current - touchEndRef.current;
-        setTargetZ((prev) => {
-          const newZ = prev + delta * 0.05;
-          if (newZ >= (images.length - 1) * zDistance) {
-            setIsAtEnd(true);
-            return (images.length - 1) * zDistance; // Limit forward scrolling on touch
-          } else if (newZ <= 0) {
-            return 0; // Limit backward scrolling on touch
-          } else {
-            setIsAtEnd(false);
             return newZ;
           }
         });
@@ -146,15 +121,8 @@ function Slideshow() {
     };
 
     window.addEventListener('wheel', handleScroll);
-    window.addEventListener('touchstart', handleTouchStart);
-    window.addEventListener('touchmove', handleTouchMove);
-    window.addEventListener('touchend', handleTouchEnd);
-
     return () => {
       window.removeEventListener('wheel', handleScroll);
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', handleTouchEnd);
     };
   }, [images.length, zDistance, isInsideScrollCircle]);
 
@@ -176,34 +144,60 @@ function Slideshow() {
     texture,
     delay: i * 300,
     onClick: () => navigate(`/page${i + 1}`),
+    title: images[i].title,
   }));
 
   return (
-    <group
-      ref={groupRef}
-      onPointerOver={() => setIsHovered(true)} // Detect hover to speed up rotation
-      onPointerOut={() => setIsHovered(false)}
-      onPointerMove={(e) => {
-        const circleRadius = 12;
-        const x = e.point.x;
-        const y = e.point.y;
-        // Check if cursor is inside the scroll circle
-        const isInside = Math.sqrt(x * x + y * y) <= circleRadius;
-        setIsInsideScrollCircle(isInside);
-      }}
-    >
-      {objects.map((obj, i) => (
-        <ImagePlane
-          key={i}
-          position={obj.position}
-          texture={obj.texture}
-          scale={[calculatedScale, calculatedScale, calculatedScale]}
-          onClick={obj.onClick}
-          delay={obj.delay}
-          isChrome={isChrome} // Pass whether it's Chrome to adjust animations
-        />
-      ))}
-    </group>
+    <>
+      <group
+        ref={groupRef}
+        onPointerOver={() => setIsHovered(true)}
+        onPointerOut={() => setIsHovered(false)}
+        onPointerMove={(e) => {
+          const circleRadius = 12;
+          const x = e.point.x;
+          const y = e.point.y;
+          const isInside = Math.sqrt(x * x + y * y) <= circleRadius;
+          setIsInsideScrollCircle(isInside);
+        }}
+      >
+        {objects.map((obj, i) => (
+          <ImagePlane
+            key={i}
+            position={obj.position}
+            texture={obj.texture}
+            scale={[calculatedScale, calculatedScale, calculatedScale]}
+            onClick={obj.onClick}
+            delay={obj.delay}
+            isChrome={isChrome}
+            title={obj.title}
+            onHover={setHoveredTitle}
+          />
+        ))}
+      </group>
+      {hoveredTitle && (
+        <Html fullscreen>
+          <div
+            className="hover-title-bottom"
+            style={{
+              color: 'red',
+              fontSize: '6rem',
+              fontStyle: 'italic',
+              fontFamily: 'Arial Black',
+              position: 'absolute',
+              bottom: '10%', // Positioned at the bottom
+              left: '50%',
+              transform: 'translateX(-50%)',
+              transition: 'opacity 0.5s ease, transform 0.5s ease', // Smooth animation
+              opacity: hoveredTitle ? 1 : 0,
+              transform: 'translateY(20px)', // Initial transform for smooth entry
+            }}
+          >
+            {hoveredTitle}
+          </div>
+        </Html>
+      )}
+    </>
   );
 }
 

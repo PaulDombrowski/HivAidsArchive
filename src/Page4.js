@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import { motion } from 'framer-motion';
+import CursorComponent from './CursorComponent'; // Importiere CursorComponent
 import './Page4.css'; // Importiere die CSS-Datei
 
 const firebaseConfig = {
@@ -22,6 +23,7 @@ const db = getFirestore(app);
 function Page4() {
   const [data, setData] = useState([]);
   const [hoverTitle, setHoverTitle] = useState('');
+  const [isTouch, setIsTouch] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,9 +43,16 @@ function Page4() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    // Check if the device is a touchscreen
+    const handleTouchStart = () => setIsTouch(true);
+    window.addEventListener('touchstart', handleTouchStart);
+    return () => window.removeEventListener('touchstart', handleTouchStart);
+  }, []);
+
   const getRandomPositionStyle = () => {
-    const top = Math.random() * 20 - 10; // Zufällige Positionierung nach oben/unten
-    const left = Math.random() * 20 - 10; // Zufällige Positionierung nach links/rechts
+    const top = Math.min(Math.max(Math.random() * 20 - 10, -5), 5); // Restrict to stay in the viewport
+    const left = Math.min(Math.max(Math.random() * 20 - 10, -5), 5);
     return {
       transform: `translate(${left}%, ${top}%)`
     };
@@ -58,11 +67,36 @@ function Page4() {
     }
   };
 
+  const handleMouseEnter = (title) => {
+    setHoverTitle(title);
+  };
+
+  const handleMouseLeave = () => {
+    if (!isTouch) {
+      setHoverTitle('');
+    }
+  };
+
+  const handleTouch = (title) => {
+    setHoverTitle(title);
+    setTimeout(() => setHoverTitle(''), 3000); // Hover title stays longer on touch
+  };
+
+  const calculateFontSize = (title) => {
+    const wordCount = title.split(' ').length;
+    if (wordCount > 12) {
+      return `${Math.max(6, 12 - wordCount)}rem`; // Shrink font size as word count increases
+    }
+    return '10rem'; // Default large size for short titles
+  };
+
   return (
     <div className="page4-container">
-   
       <h1>ALL RECORDS</h1>
-      <div className={`hover-title ${hoverTitle ? 'show' : ''}`}>
+      <div
+        className={`hover-title ${hoverTitle ? 'show' : ''}`}
+        style={{ fontSize: calculateFontSize(hoverTitle) }}
+      >
         {hoverTitle.split(' ').map((word, index) => (
           <span key={index} style={getRandomPositionStyle()}>{word}</span>
         ))}
@@ -87,8 +121,9 @@ function Page4() {
               animate={{ opacity: 1, translateY: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               onClick={() => handleRowClick(item.id)}
-              onMouseEnter={() => setHoverTitle(item.title)}
-              onMouseLeave={() => setHoverTitle('')}
+              onMouseEnter={() => handleMouseEnter(item.title)}
+              onMouseLeave={handleMouseLeave}
+              onTouchStart={() => handleTouch(item.title)}
               className="clickable-row"
             >
               <td>{index + 1}</td>
@@ -105,6 +140,7 @@ function Page4() {
           ))}
         </tbody>
       </table>
+      <CursorComponent /> {/* Integriere die Cursor-Komponente */}
     </div>
   );
 }
