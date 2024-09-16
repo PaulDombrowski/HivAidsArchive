@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
 import LeftTextComponent from './LeftTextComponent';
-import RightTextComponent from './RightTextComponent';
 import { Canvas } from '@react-three/fiber'; // Import Canvas for Three.js context
 import Slideshow from './Slideshow'; // Import the Slideshow component
 
@@ -10,6 +9,8 @@ const Page1 = () => {
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [backgroundGradient, setBackgroundGradient] = useState('rgba(245, 245, 245, 1)');
   const [rightTransform, setRightTransform] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false); // State to manage hover effect
+  const requestRef = useRef(null); // For requestAnimationFrame
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -39,11 +40,16 @@ const Page1 = () => {
     };
   }, []);
 
-  const handleRightTextTransform = (e) => {
-    setRightTransform({
-      x: e.clientX / 100,
-      y: e.clientY / 100,
-    });
+  // Throttling the mouse movement using requestAnimationFrame for smooth movement
+  const handleMouseMoveOverRightText = (e) => {
+    const updateRightTransform = () => {
+      setRightTransform({
+        x: e.clientX / 200,
+        y: e.clientY / 200,
+      });
+    };
+    cancelAnimationFrame(requestRef.current); // Cancel any previous animation frame
+    requestRef.current = requestAnimationFrame(updateRightTransform); // Throttle updates
   };
 
   return (
@@ -78,10 +84,13 @@ const Page1 = () => {
       <div
         style={{
           ...styles.rightTextWrapper,
-          transform: `translate(${rightTransform.x}px, ${rightTransform.y}px) rotateX(0deg) rotateY(-40deg)`, // Apply the 3D transformation here
+          ...(!isHovered ? styles.rightTextWrapperDefault : styles.rightTextWrapperHover),
+          transform: `translate(${rightTransform.x}px, ${rightTransform.y}px) ${isHovered ? 'scale(1.05) rotateY(-20deg)' : 'rotateY(-40deg)'}`, // Combine both dynamic and hover transforms
         }}
         ref={rightTextRef}
-        onMouseMove={handleRightTextTransform}
+        onMouseMove={handleMouseMoveOverRightText}
+        onMouseEnter={() => setIsHovered(true)} // Trigger hover effect
+        onMouseLeave={() => setIsHovered(false)} // Reset on hover leave
       >
         <LeftTextComponent /> {/* Component for the left text but it's now on the right */}
       </div>
@@ -121,26 +130,35 @@ const styles = {
 
   rightTextWrapper: {
     width: '30%',
-    height: '100vh',
+    height: 'calc(100vh - 100px)', // Add extra height to avoid being cut off due to transform
     overflowY: 'scroll', // Enable vertical scrolling for right text
     fontSize: '1.2rem',
-    fontFamily: 'Arial, sans-serif',
+    fontFamily: "'Lora', serif", // Use an elegant Google font
     lineHeight: '1.5',
     textAlign: 'left',
     zIndex: 3, // Right text stays in the foreground
-    padding: '0px 30px', // Adds padding to move text inward
+    padding: '50px 30px', // Adds padding at the top and bottom to avoid clipping
     marginLeft: '10px',
-    marginRight: '400px', // Adjust margin to move closer to the left text
+    marginRight: '250px', // Adjust margin to move closer to the left text
     scrollbarWidth: 'none', // Hide scrollbar for Firefox
     msOverflowStyle: 'none', // Hide scrollbar for Internet Explorer and Edge
     transformStyle: 'preserve-3d', // Preserve 3D effect for children
+    transition: 'color 0.3s ease, transform 0.3s ease', // Smooth transitions for hover effect
+  },
+
+  rightTextWrapperDefault: {
+    color: '#808080', // Default gray text color
+  },
+
+  rightTextWrapperHover: {
+    color: '#9370DB', // Flieder color on hover
   },
 
   slideshowOverlay: {
     position: 'absolute', // Allow the slideshow to overlay all other content
-    left: '-100px', // Move the slideshow 100px to the left
+    left: '-100px', // Move slideshow even further to the left
     top: '0',
-    width: '60%', // Define width to cover most of the viewport
+    width: '70%', // Keep slideshow size large
     height: '100%',
     zIndex: 1, // Behind text, but on top of the background
     pointerEvents: 'auto', // Allow interaction with the canvas

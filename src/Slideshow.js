@@ -175,28 +175,59 @@ function Slideshow() {
           />
         ))}
       </group>
+    
+   
       {hoveredTitle && (
-        <Html fullscreen>
-          <div
-            className="hover-title-bottom"
-            style={{
-              color: 'red',
-              fontSize: '6rem',
-              fontStyle: 'italic',
-              fontFamily: 'Arial Black',
-              position: 'absolute',
-              bottom: '10%', // Positioned at the bottom
-              left: '50%',
-              transform: 'translateX(-50%)',
-              transition: 'opacity 0.5s ease, transform 0.5s ease', // Smooth animation
-              opacity: hoveredTitle ? 1 : 0,
-              transform: 'translateY(20px)', // Initial transform for smooth entry
-            }}
-          >
-            {hoveredTitle}
-          </div>
-        </Html>
-      )}
+  <Html fullscreen>
+    <div
+      className="hover-title-container"
+      style={{
+        fontSize: '6rem',
+        fontFamily: 'Arial Black, sans-serif',
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        color: 'rgba(255, 0, 0, 1)', // Solid red color
+        letterSpacing: '0.1em', // Slightly spaced out for readability
+        textTransform: 'uppercase', // Strong uppercase text
+        animation: 'softFloat 6s ease-in-out infinite', // Soft floating animation
+        whiteSpace: 'nowrap', // Ensure it stays on one line
+        pointerEvents: 'none', // Allow clicks to pass through this element
+      }}
+    >
+      {hoveredTitle}
+    </div>
+
+    <style>
+      {`
+        @keyframes softFloat {
+          0% {
+            transform: translate(-50%, -50%) translateY(0px);
+          }
+          50% {
+            transform: translate(-50%, -50%) translateY(-15px); /* Slight upward movement */
+          }
+          100% {
+            transform: translate(-50%, -50%) translateY(0px); /* Back to original position */
+          }
+        }
+
+        .hover-title-container {
+          transition: transform 0.5s ease; /* Smooth transition */
+        }
+      `}
+    </style>
+  </Html>
+)}
+
+
+
+
+
+
+
+
     </>
   );
 }
