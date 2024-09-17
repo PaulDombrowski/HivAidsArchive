@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, getDocs } from 'firebase/firestore'; // Kein orderBy nötig
 import { motion } from 'framer-motion';
 import './Page3.css';
+import SpiralText from './ElegantSpiralText';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDgxBvHfuv0izCJPwNwBd5Ou9brHzGBSqk",
@@ -21,60 +22,85 @@ const db = getFirestore(app);
 
 function Page3() {
   const [data, setData] = useState([]);
-  const [visibleData, setVisibleData] = useState([]);
+  const [positions, setPositions] = useState([]);
   const [hoveredItem, setHoveredItem] = useState(null);
-  const [positions, setPositions] = useState([]); // Stores the random positions
   const [hoverTitle, setHoverTitle] = useState('');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "uploads"));
-        const items = [];
-        querySnapshot.forEach((doc) => {
-          items.push({ id: doc.id, ...doc.data() });
-        });
-        setData(items);
-        shuffleData(items); // Shuffle data on first load
-      } catch (error) {
-        console.error("Error fetching data: ", error);
-      }
-    };
+  // Daten aus Firestore abrufen und shufflen
+  const fetchData = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "uploads"));
+      const items = [];
+      querySnapshot.forEach((doc) => {
+        items.push({ id: doc.id, ...doc.data() });
+      });
+      shuffleData(items); // Zufällig mischen nach Abruf
+    } catch (error) {
+      console.error("Error fetching data: ", error);
+    }
+  };
 
-    fetchData();
+  useEffect(() => {
+    fetchData(); // Daten beim ersten Laden abrufen
   }, []);
 
-  const shuffleData = (items = data) => {
-    const shuffled = [...items].sort(() => 0.5 - Math.random());
-    const selectedItems = shuffled.slice(0, 6); // Only select 6 items
-    setVisibleData(selectedItems);
-    setPositions(selectedItems.map(() => getRandomPosition())); // Generate random positions for each thumbnail
+  // Shufflen und Positionen zufällig verteilen
+  const shuffleData = (items) => {
+    const shuffled = [...items].sort(() => 0.5 - Math.random()); // Items zufällig mischen
+    setData(shuffled.slice(0, 6)); // Zeige 6 zufällige Items an
+    generateRandomPositions(6); // Generiere zufällige Positionen für die 6 Items
   };
 
-  const getRandomPosition = () => {
-    const x = Math.floor(Math.random() * (window.innerWidth - 200));
-    const y = Math.floor(Math.random() * (window.innerHeight - 200));
-    return { left: `${x}px`, top: `${y}px` };
+  // Zufällige Positionen für die Items berechnen
+  const generateRandomPositions = (count) => {
+    const positions = [];
+    const spacing = 200; // Mindestabstand zwischen den Items
+    const maxWidth = window.innerWidth - spacing;
+    const maxHeight = window.innerHeight - spacing;
+
+    for (let i = 0; i < count; i++) {
+      let position;
+      let tries = 0;
+
+      do {
+        position = {
+          left: Math.floor(Math.random() * maxWidth),
+          top: Math.floor(Math.random() * maxHeight),
+          rotateY: 10 // Gleicher Neigungswinkel für alle Items
+        };
+        tries++;
+      } while (
+        positions.some(
+          (p) =>
+            Math.abs(p.left - position.left) < spacing &&
+            Math.abs(p.top - position.top) < spacing
+        ) && tries < 100
+      );
+      positions.push(position);
+    }
+    setPositions(positions);
   };
 
+  // Hover-Titel anzeigen
   const handleMouseEnter = (item) => {
     setHoveredItem(item.id);
-    setHoverTitle(item.title);
+    setHoverTitle(item.title); // Setze den Hover-Titel
   };
 
   const handleMouseLeave = () => {
     setHoveredItem(null);
-    setHoverTitle('');
+    setHoverTitle(''); // Verstecke den Hover-Titel
   };
 
   return (
     <div className="page-container">
-      <h1>Entdecke die Thumbnails</h1>
-      <button onClick={() => shuffleData()} className="shuffle-button">
+      
+      <button onClick={fetchData} className="shuffle-button">
         Shuffle
       </button>
 
+      {/* Hovered Title */}
       <div className={`hover-title ${hoverTitle ? 'show' : ''}`}>
         {hoverTitle.split(' ').map((word, index) => (
           <motion.span
@@ -88,29 +114,36 @@ function Page3() {
           </motion.span>
         ))}
       </div>
-
+     
       <div className="thumbnail-container">
-        {visibleData.map((item, index) => {
+        {data.map((item, index) => {
           const backgroundImage = item.thumbnailURL || (item.fileURLs && item.fileURLs[0]);
 
           return (
-            <div
+            <motion.div
               key={item.id}
-              className={`thumbnail-item ${hoveredItem === item.id ? 'hovered' : ''}`}
+              className={`thumbnail-item ${hoveredItem !== null && hoveredItem !== item.id ? 'blurred' : ''}`}
               onClick={() => navigate(`/detail/${item.id}`)}
               onMouseEnter={() => handleMouseEnter(item)}
               onMouseLeave={handleMouseLeave}
               style={{ ...positions[index], backgroundImage: `url(${backgroundImage})` }}
-            >
-              {hoveredItem === item.id && (
-                <div className="thumbnail-info">
-                  <p><strong>{item.title}</strong></p>
-                </div>
-              )}
-            </div>
+              initial={{ rotateY: positions[index].rotateY }}
+              animate={hoveredItem === item.id ? { rotateY: 0 } : { rotateY: positions[index].rotateY }}
+              transition={{ duration: 0.5 }}
+              whileHover={{ scale: 1.1, rotateY: 0 }}
+              animate={{
+                y: [0, -10, 0],
+                transition: {
+                  duration: Math.random() * 3 + 2, 
+                  repeat: Infinity,
+                  repeatType: "reverse"
+                }
+              }}
+            />
           );
         })}
       </div>
+      <SpiralText/>
     </div>
   );
 }

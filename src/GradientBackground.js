@@ -1,24 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, useGLTF } from '@react-three/drei';
-import * as THREE from 'three'; // Import for material properties
+import { OrbitControls, useGLTF, Environment } from '@react-three/drei';
+import * as THREE from 'three'; // Importiere THREE für die Materialeigenschaften
 import MagnetWords from './MagnetWords'; // Importiere MagnetWords-Komponente
 
 // Custom component to load the 3D model
 function Model({ isChrome }) {
   const { scene } = useGLTF(`${process.env.PUBLIC_URL}/hivpdf.glb`); // Verwende process.env.PUBLIC_URL für das 3D-Modell
-  
-  // Apply material properties to the model
+
+  // Set model with red base color, lila reflections, and strong chrome effect
   useEffect(() => {
     scene.traverse((object) => {
       if (object.isMesh) {
         object.material = new THREE.MeshStandardMaterial({
-          color: new THREE.Color(0xFF0000), // Red color
-          metalness: 0.3,
-          roughness: 0.1,
-          emissive: new THREE.Color(0xFF0000), // Slight red glow
-          emissiveIntensity: 0.3,
+          color: 0xff0000, // Rot als Grundfarbe für den Chrome-Effekt
+          metalness: 1.0,  // Maximale Metallicity für den Chrome-Effekt
+          roughness: 0.0,  // Extrem glatt für perfekte Reflexionen
+          envMapIntensity: 0.2, // Stärkere Reflexionen von der Umgebung
         });
         object.castShadow = true;
         object.receiveShadow = true;
@@ -26,14 +25,13 @@ function Model({ isChrome }) {
     });
   }, [scene]);
 
-  // Adjust rotation and animation speeds based on whether it's Chrome
+  // Apply rotation animation
   useFrame(() => {
     const speedMultiplier = isChrome ? 2 : 1; // Slower for Chrome
     scene.rotation.y += 0.002 * speedMultiplier;
     scene.rotation.x += 0.001 * speedMultiplier;
   });
 
-  // Return the model component with adjusted scale and position
   return <primitive object={scene} scale={[0.3, 0.3, 0.3]} position={[0, 0, 0]} />;
 }
 
@@ -88,7 +86,7 @@ function RedInteractiveBackground() {
     navigate('/page1');
   };
 
-  // Background image style
+  // Background image style (similar to Blender's World settings)
   const backgroundImageStyle = {
     backgroundImage: `url(${process.env.PUBLIC_URL}/0X5f0CK.jpeg)`, // Verwende process.env.PUBLIC_URL für das Hintergrundbild
     backgroundRepeat: 'repeat',
@@ -111,7 +109,7 @@ function RedInteractiveBackground() {
       rgba(255, 0, 0, 1) 9px,
       rgba(255, 0, 0, 0.2) 70px,
       rgba(255, 0, 0, 0.2) 90px,
-      rgba(245, 245, 245, 1) 150px
+      rgba(10, 10, 13, 1) 150px
     )`,
     boxShadow: `0 0 30px 20px rgba(255, 0, 0, 0.5)`,
     width: '100vw',
@@ -126,9 +124,14 @@ function RedInteractiveBackground() {
 
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
-      <div style={backgroundImageStyle} /> {/* Scrolling background */}
-      <MagnetWords /> {/* MagnetWords component */}
-      <div style={gucklockStyle} /> {/* Guckloch effect */}
+      {/* Scrolling background */}
+      <div style={backgroundImageStyle} /> 
+      
+      {/* MagnetWords component */}
+      <MagnetWords /> 
+      
+      {/* Guckloch effect */}
+      <div style={gucklockStyle} />
 
       {/* Canvas for 3D model and lighting */}
       <Canvas
@@ -136,9 +139,9 @@ function RedInteractiveBackground() {
         camera={{ position: [3, 4, 5], fov: isChrome ? 60 : 50 }} // Adjust FOV for Chrome
         shadows
       >
-        {/* Ambient light */}
-        <ambientLight intensity={isChrome ? 1.0 : 1.5} /> {/* Lower intensity for Chrome */}
-        
+        {/* Ambient purple light */}
+        <ambientLight color={new THREE.Color(0x800080)} intensity={2.0} />
+
         {/* Point light that follows the mouse */}
         <pointLight 
           position={[
@@ -146,19 +149,29 @@ function RedInteractiveBackground() {
             (mousePos.y / window.innerHeight) * 10 - 5,
             5,
           ]}
-          intensity={isChrome ? 2 : 4} // Reduce intensity for Chrome
+          color={new THREE.Color(0x800080)} // Lila point light für lila Reflexionen
+          intensity={3}
           castShadow
-          shadow-mapSize-width={isChrome ? 512 : 1024} // Lower shadow resolution for Chrome
-          shadow-mapSize-height={isChrome ? 512 : 1024}
+          shadow-mapSize-width={1024}
+          shadow-mapSize-height={1024}
         />
         
-        {/* Additional directional lights */}
-        <directionalLight position={[0, 10, 10]} intensity={isChrome ? 1 : 2} castShadow />
-        <pointLight position={[-5, 5, 5]} intensity={isChrome ? 1 : 1.5} castShadow />
-        <pointLight position={[5, -5, -5]} intensity={isChrome ? 1 : 1.5} />
-
+        {/* Directional purple light */}
+        <directionalLight 
+          color={new THREE.Color(0x800080)} // Lila directional light
+          position={[0, 10, 10]} 
+          intensity={2} 
+          castShadow 
+        />
+        
         {/* Load the 3D model */}
         <Model isChrome={isChrome} />
+
+        {/* Environment for JPEG reflections */}
+        <Environment
+          files={`${process.env.PUBLIC_URL}/reflexions.jpg`} // Pfad zur JPEG-Datei
+          background={false} // Nicht als Hintergrund verwenden, nur für Reflexionen
+        />
 
         {/* Camera controls */}
         <OrbitControls />

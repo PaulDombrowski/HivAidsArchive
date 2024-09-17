@@ -136,3 +136,43 @@ td.category {
     font-size: 3rem;
   }
 }
+
+.search-field {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  border-radius: 50px; /* Ovale Form */
+  border: 3px solid #ff0000;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.search-field:focus {
+  border-color: red; /* Beim Fokussieren */
+}
+
+.clickable-row {
+  transition: all 0.3s ease;
+}
+
+.clickable-row:hover {
+  background-color: red; /* Rot beim Hover */
+  color: white;
+}
+
+.found-item {
+  animation: moveToTop 0.5s ease-out; /* Bewegung nach oben */
+}
+
+@keyframes moveToTop {
+  from {
+    transform: translateY(20px);
+    opacity: 0.8;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import { motion } from 'framer-motion';
-import CursorComponent from './CursorComponent'; // Importiere CursorComponent
-import './Page4.css'; // Importiere die CSS-Datei
+import CursorComponent from './CursorComponent'; 
+import './Page4.css'; 
 
 const firebaseConfig = {
   apiKey: "AIzaSyDgxBvHfuv0izCJPwNwBd5Ou9brHzGBSqk",
@@ -24,6 +24,7 @@ function Page4() {
   const [data, setData] = useState([]);
   const [hoverTitle, setHoverTitle] = useState('');
   const [isTouch, setIsTouch] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(''); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,14 +45,13 @@ function Page4() {
   }, []);
 
   useEffect(() => {
-    // Check if the device is a touchscreen
     const handleTouchStart = () => setIsTouch(true);
     window.addEventListener('touchstart', handleTouchStart);
     return () => window.removeEventListener('touchstart', handleTouchStart);
   }, []);
 
   const getRandomPositionStyle = () => {
-    const top = Math.min(Math.max(Math.random() * 20 - 10, -5), 5); // Restrict to stay in the viewport
+    const top = Math.min(Math.max(Math.random() * 20 - 10, -5), 5);
     const left = Math.min(Math.max(Math.random() * 20 - 10, -5), 5);
     return {
       transform: `translate(${left}%, ${top}%)`
@@ -79,20 +79,37 @@ function Page4() {
 
   const handleTouch = (title) => {
     setHoverTitle(title);
-    setTimeout(() => setHoverTitle(''), 3000); // Hover title stays longer on touch
+    setTimeout(() => setHoverTitle(''), 3000);
   };
 
   const calculateFontSize = (title) => {
     const wordCount = title.split(' ').length;
     if (wordCount > 12) {
-      return `${Math.max(6, 12 - wordCount)}rem`; // Shrink font size as word count increases
+      return `${Math.max(7, 12 - wordCount)}rem`;
     }
-    return '10rem'; // Default large size for short titles
+    return '10rem';
   };
+
+  const filteredData = data.filter(item => 
+    item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.category.some(cat => cat.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    item.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   return (
     <div className="page4-container">
-      <h1>ALL RECORDS</h1>
+      <h1>ALL CURRENT RECORDS IN THE DATABASE</h1>
+
+      {/* Suchfeld */}
+      <input
+        type="text"
+        placeholder="Search..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="search-field"
+      />
+
       <div
         className={`hover-title ${hoverTitle ? 'show' : ''}`}
         style={{ fontSize: calculateFontSize(hoverTitle) }}
@@ -101,6 +118,7 @@ function Page4() {
           <span key={index} style={getRandomPositionStyle()}>{word}</span>
         ))}
       </div>
+
       <table>
         <thead>
           <tr>
@@ -113,18 +131,18 @@ function Page4() {
           </tr>
         </thead>
         <tbody>
-          {data.map((item, index) => (
+          {filteredData.map((item, index) => (
             <motion.tr
               key={item.id}
               id={item.id}
               initial={{ opacity: 0, translateY: -20 }}
               animate={{ opacity: 1, translateY: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              transition={{ duration: 0.2, delay: index * 0.05 }} 
               onClick={() => handleRowClick(item.id)}
               onMouseEnter={() => handleMouseEnter(item.title)}
               onMouseLeave={handleMouseLeave}
               onTouchStart={() => handleTouch(item.title)}
-              className="clickable-row"
+              className={`clickable-row ${searchTerm ? 'found-item' : ''}`} 
             >
               <td>{index + 1}</td>
               <td>{item.title}</td>
@@ -140,7 +158,8 @@ function Page4() {
           ))}
         </tbody>
       </table>
-      <CursorComponent /> {/* Integriere die Cursor-Komponente */}
+
+      <CursorComponent />
     </div>
   );
 }

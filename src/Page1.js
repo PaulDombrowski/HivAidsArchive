@@ -130,16 +130,16 @@ const styles = {
 
   rightTextWrapper: {
     width: '30%',
-    height: 'calc(100vh - 100px)', // Add extra height to avoid being cut off due to transform
+    height: '100vh',
     overflowY: 'scroll', // Enable vertical scrolling for right text
     fontSize: '1.2rem',
     fontFamily: "'Lora', serif", // Use an elegant Google font
     lineHeight: '1.5',
     textAlign: 'left',
     zIndex: 3, // Right text stays in the foreground
-    padding: '50px 30px', // Adds padding at the top and bottom to avoid clipping
+    padding: '0px 30px', // Adds padding to move text inward
     marginLeft: '10px',
-    marginRight: '250px', // Adjust margin to move closer to the left text
+    marginRight: '250px', // Move text further right
     scrollbarWidth: 'none', // Hide scrollbar for Firefox
     msOverflowStyle: 'none', // Hide scrollbar for Internet Explorer and Edge
     transformStyle: 'preserve-3d', // Preserve 3D effect for children
@@ -156,9 +156,9 @@ const styles = {
 
   slideshowOverlay: {
     position: 'absolute', // Allow the slideshow to overlay all other content
-    left: '-100px', // Move slideshow even further to the left
+    left: '-50px', // Make slideshow a bit larger
     top: '0',
-    width: '70%', // Keep slideshow size large
+    width: '70%', // Increase the width of the slideshow
     height: '100%',
     zIndex: 1, // Behind text, but on top of the background
     pointerEvents: 'auto', // Allow interaction with the canvas
