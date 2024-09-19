@@ -2,22 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, useGLTF, Environment } from '@react-three/drei';
-import * as THREE from 'three'; // Importiere THREE für die Materialeigenschaften
-import MagnetWords from './MagnetWords'; // Importiere MagnetWords-Komponente
+import * as THREE from 'three'; // Import THREE for material properties
+import MagnetWords from './MagnetWords'; // Import MagnetWords component
 
 // Custom component to load the 3D model
 function Model({ isChrome }) {
-  const { scene } = useGLTF(`${process.env.PUBLIC_URL}/hivpdf.glb`); // Verwende process.env.PUBLIC_URL für das 3D-Modell
+  const { scene } = useGLTF(`${process.env.PUBLIC_URL}/hivpdf.glb`); // Use process.env.PUBLIC_URL for the 3D model
 
-  // Set model with red base color, lila reflections, and strong chrome effect
+  // Set model with red base color, purple reflections, and strong chrome effect
   useEffect(() => {
     scene.traverse((object) => {
       if (object.isMesh) {
         object.material = new THREE.MeshStandardMaterial({
-          color: 0xff0000, // Rot als Grundfarbe für den Chrome-Effekt
-          metalness: 1.0,  // Maximale Metallicity für den Chrome-Effekt
-          roughness: 0.0,  // Extrem glatt für perfekte Reflexionen
-          envMapIntensity: 0.2, // Stärkere Reflexionen von der Umgebung
+          color: 0xff0000, // Red as the base color for the chrome effect
+          metalness: 1.0,  // Maximum metallicity for the chrome effect
+          roughness: 0.0,  // Extremely smooth for perfect reflections
+          envMapIntensity: 0.2, // Stronger reflections from the environment
         });
         object.castShadow = true;
         object.receiveShadow = true;
@@ -32,7 +32,7 @@ function Model({ isChrome }) {
     scene.rotation.x += 0.001 * speedMultiplier;
   });
 
-  return <primitive object={scene} scale={[0.3, 0.3, 0.3]} position={[0, 0, 0]} />;
+  return <primitive object={scene} scale={[0.25, 0.25, 0.25]} position={[0, 0, 0]} />;
 }
 
 function RedInteractiveBackground() {
@@ -86,9 +86,9 @@ function RedInteractiveBackground() {
     navigate('/page1');
   };
 
-  // Background image style (similar to Blender's World settings)
+  // Moving background image style
   const backgroundImageStyle = {
-    backgroundImage: `url(${process.env.PUBLIC_URL}/0X5f0CK.jpeg)`, // Verwende process.env.PUBLIC_URL für das Hintergrundbild
+    backgroundImage: `url(${process.env.PUBLIC_URL}/0X5f0CK.jpeg)`, // Use process.env.PUBLIC_URL for the moving background
     backgroundRepeat: 'repeat',
     backgroundSize: 'cover',
     backgroundPosition: `${scrollOffset}px ${scrollOffset}px`,
@@ -109,9 +109,9 @@ function RedInteractiveBackground() {
       rgba(255, 0, 0, 1) 9px,
       rgba(255, 0, 0, 0.2) 70px,
       rgba(255, 0, 0, 0.2) 90px,
-      rgba(10, 10, 13, 1) 150px
+      rgba(0, 0, 0, 1) 150px
     )`,
-    boxShadow: `0 0 30px 20px rgba(255, 0, 0, 0.5)`,
+    boxShadow: `0 0 30px 20px rgba(255, 0, 0, 0.2)`,
     width: '100vw',
     height: '100vh',
     position: 'absolute',
@@ -120,6 +120,20 @@ function RedInteractiveBackground() {
     zIndex: 2,
     pointerEvents: 'none',
     transition: 'all 0.1s ease-out',
+  };
+
+  // Semi-transparent overlay background
+  const overlayBackgroundStyle = {
+    backgroundImage: `url(${process.env.PUBLIC_URL}/background1.jpg)`, // Semi-transparent overlay
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    width: '100vw',
+    height: '100vh',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    zIndex: 3,
+    opacity: 0.2, // Set opacity for transparency effect
   };
 
   return (
@@ -132,6 +146,9 @@ function RedInteractiveBackground() {
       
       {/* Guckloch effect */}
       <div style={gucklockStyle} />
+
+      {/* Semi-transparent overlay */}
+      <div style={overlayBackgroundStyle} />
 
       {/* Canvas for 3D model and lighting */}
       <Canvas
@@ -149,7 +166,7 @@ function RedInteractiveBackground() {
             (mousePos.y / window.innerHeight) * 10 - 5,
             5,
           ]}
-          color={new THREE.Color(0x800080)} // Lila point light für lila Reflexionen
+          color={new THREE.Color(0x800080)} // Purple point light for reflections
           intensity={3}
           castShadow
           shadow-mapSize-width={1024}
@@ -158,7 +175,7 @@ function RedInteractiveBackground() {
         
         {/* Directional purple light */}
         <directionalLight 
-          color={new THREE.Color(0x800080)} // Lila directional light
+          color={new THREE.Color(0x800080)} // Purple directional light
           position={[0, 10, 10]} 
           intensity={2} 
           castShadow 
@@ -169,8 +186,8 @@ function RedInteractiveBackground() {
 
         {/* Environment for JPEG reflections */}
         <Environment
-          files={`${process.env.PUBLIC_URL}/reflexions.jpg`} // Pfad zur JPEG-Datei
-          background={false} // Nicht als Hintergrund verwenden, nur für Reflexionen
+          files={`${process.env.PUBLIC_URL}/reflexions.jpg`} // Path to the JPEG file for reflections
+          background={false} // Not used as background, only for reflections
         />
 
         {/* Camera controls */}

@@ -176,24 +176,30 @@ function Slideshow() {
         ))}
       </group>
     
-   
+      // Inside the Slideshow component, replace the hoveredTitle rendering section with this updated block:
+
       {hoveredTitle && (
   <Html fullscreen>
     <div
       className="hover-title-container"
       style={{
-        fontSize: '6rem',
+        fontSize: '6rem', // Slightly smaller font size
         fontFamily: 'Arial Black, sans-serif',
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        color: 'rgba(255, 0, 0, 1)', // Solid red color
-        letterSpacing: '0.1em', // Slightly spaced out for readability
-        textTransform: 'uppercase', // Strong uppercase text
-        animation: 'softFloat 6s ease-in-out infinite', // Soft floating animation
-        whiteSpace: 'nowrap', // Ensure it stays on one line
-        pointerEvents: 'none', // Allow clicks to pass through this element
+        position: 'fixed',
+        writingMode: 'vertical-rl', // Vertical orientation of the text
+        right: '5%', // Positioned a bit further left from the right edge
+        bottom: '0%', // Slightly lower near the bottom of the canvas
+        transform: isHovered
+          ? 'rotateY(-10deg) rotateX(5deg) translateZ(20px) scale(1.1)'
+          : 'rotateY(-20deg) rotateX(10deg) translateZ(0)', // Subtle 3D rotation for a refined look
+        color: 'rgba(255, 0, 0, 1)', // Bright red for visibility
+        letterSpacing: '0.05em',
+        textTransform: 'uppercase',
+        whiteSpace: 'nowrap',
+        pointerEvents: 'none',
+        opacity: 0,
+        animation: 'smoothFadeIn 1s ease forwards',
+        zIndex: 10,
       }}
     >
       {hoveredTitle}
@@ -201,31 +207,24 @@ function Slideshow() {
 
     <style>
       {`
-        @keyframes softFloat {
+        @keyframes smoothFadeIn {
           0% {
-            transform: translate(-50%, -50%) translateY(0px);
-          }
-          50% {
-            transform: translate(-50%, -50%) translateY(-15px); /* Slight upward movement */
+            opacity: 0;
+            transform: rotateY(-20deg) rotateX(10deg) translateZ(-40px); // Starting with a dynamic perspective
           }
           100% {
-            transform: translate(-50%, -50%) translateY(0px); /* Back to original position */
+            opacity: 1;
+            transform: rotateY(-10deg) rotateX(5deg) translateZ(20px); // Final refined 3D positioning
           }
         }
 
         .hover-title-container {
-          transition: transform 0.5s ease; /* Smooth transition */
+          transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; // Smooth transition for elegance
         }
       `}
     </style>
   </Html>
 )}
-
-
-
-
-
-
 
 
     </>

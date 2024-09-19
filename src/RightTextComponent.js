@@ -393,8 +393,6 @@ Würdemann, Ulrich. 2017. <i>Schweigen = Tod, Aktion = Leben: ACT UP in Deutschl
 Young, James Edward [Hrsg.] 1994. <i>Mahnmale des Holocaust: Motive, Rituale und Stätten des Gedenkens</i>; [zur Ausstellung „The Art of Memory: Holocaust Memorials in History“; Begleitbuch zur der vom Jewish Museum in New York übernommenen Ausstellung im Deutschen Historischen Museum im Zeughaus in Berlin vom 13. September bis 15. November 1994, im Münchner Stadtmuseum vom 9. Dezember 1994 bis 5. März 1995 sowie in weiteren Museen Deutschlands]. Dt. Ausg. München: Prestel.<br /><br />
 
 
-Zureik, Elia. 2021. The Palestine Nakba: Decolonising History, Narrating the Subaltern, Reclaiming Memory. London: Routledge.<br /><br />
-
 {/* Weiteren Einträge sind jetzt vollständig */}
         {/* Weitere Einträge hinzufügen */}
       </p>

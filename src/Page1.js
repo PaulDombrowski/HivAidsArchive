@@ -5,9 +5,9 @@ import Slideshow from './Slideshow'; // Import the Slideshow component
 
 const Page1 = () => {
   const rightTextRef = useRef(null);
-  const slideshowRef = useRef(null); // Slideshow reference
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
-  const [backgroundGradient, setBackgroundGradient] = useState('rgba(245, 245, 245, 1)');
+  const [filterStyle, setFilterStyle] = useState('none');
+  const [cursorSize, setCursorSize] = useState(40); // State to manage cursor size
   const [rightTransform, setRightTransform] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false); // State to manage hover effect
   const requestRef = useRef(null); // For requestAnimationFrame
@@ -17,19 +17,35 @@ const Page1 = () => {
       const { clientX, clientY } = e;
       setCursorPosition({ x: clientX, y: clientY });
 
-      // Dynamically calculate the background gradient based on distance from center
+      // Calculate distance from the center of the screen
       const windowWidth = window.innerWidth;
       const windowHeight = window.innerHeight;
       const centerX = windowWidth / 2;
       const centerY = windowHeight / 2;
+      const distanceFromCenter = Math.sqrt(
+        (clientX - centerX) ** 2 + (clientY - centerY) ** 2
+      );
 
-      const distanceFromCenter = Math.sqrt((clientX - centerX) ** 2 + (clientY - centerY) ** 2);
+      // Adjust cursor size: smaller near the edges, larger in the center
+      const maxSize = 60; // Maximum size of the gradient
+      const minSize = 20; // Minimum size of the gradient near the edges
       const maxDistance = Math.sqrt(centerX ** 2 + centerY ** 2);
+      const size = maxSize - ((distanceFromCenter / maxDistance) * (maxSize - minSize));
 
-      const gradientSize = Math.max(100, 500 * (1 - distanceFromCenter / maxDistance));
+      setCursorSize(size);
 
-      setBackgroundGradient(
-        `radial-gradient(circle at ${clientX}px ${clientY}px, rgba(255,0,0,0.3), rgba(245, 245, 245, 0.7) ${gradientSize}px)`
+      // Adjust filter intensity: stronger near the cursor
+      const maxEffectDistance = 300; // Distance within which the effect is noticeable
+      const effectStrength = Math.max(
+        0,
+        (maxEffectDistance - distanceFromCenter) / maxEffectDistance
+      );
+
+      // Set a strong purple tint and moderate contrast near the cursor
+      setFilterStyle(
+        `hue-rotate(270deg) saturate(${1 + effectStrength * 3}) brightness(${
+          1 + effectStrength * 0.3
+        })`
       );
     };
 
@@ -53,18 +69,23 @@ const Page1 = () => {
   };
 
   return (
-    <div
-      style={{
-        ...styles.pageContainer,
-        background: backgroundGradient, // Dynamically set the background gradient
-      }}
-    >
-      {/* Glowing cursor */}
+    <div style={styles.pageContainer}>
+      {/* Background image layer with dynamic filter */}
+      <div
+        style={{
+          ...styles.backgroundImage,
+          filter: filterStyle, // Dynamically applied filter to manipulate the image near the cursor
+        }}
+      />
+
+      {/* Red glowing cursor effect */}
       <div
         style={{
           ...styles.customCursor,
           top: `${cursorPosition.y}px`,
           left: `${cursorPosition.x}px`,
+          width: `${cursorSize}px`,
+          height: `${cursorSize}px`,
         }}
       />
 
@@ -85,7 +106,9 @@ const Page1 = () => {
         style={{
           ...styles.rightTextWrapper,
           ...(!isHovered ? styles.rightTextWrapperDefault : styles.rightTextWrapperHover),
-          transform: `translate(${rightTransform.x}px, ${rightTransform.y}px) ${isHovered ? 'scale(1.05) rotateY(-20deg)' : 'rotateY(-40deg)'}`, // Combine both dynamic and hover transforms
+          transform: `translate(${rightTransform.x}px, ${rightTransform.y}px) ${
+            isHovered ? 'scale(1.05) rotateY(-20deg)' : 'rotateY(-40deg)'
+          }`, // Combine both dynamic and hover transforms
         }}
         ref={rightTextRef}
         onMouseMove={handleMouseMoveOverRightText}
@@ -106,13 +129,36 @@ const styles = {
     alignItems: 'flex-start',
     height: '100vh',
     width: '100%',
-    backgroundColor: '#f5f5f5',
     padding: '50px',
     perspective: '1000px', // Keep perspective for the 3D effect
     overflow: 'hidden', // Prevent scrolling the whole page
     cursor: 'none', // Hide default cursor
-    transition: 'background 0.3s ease', // Smooth transition for the background gradient
     position: 'relative', // Ensure absolute positioning works within this container
+  },
+
+  backgroundImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    backgroundImage: "url('background2.jpg')",
+    backgroundSize: 'cover', // Ensure the image covers the entire area
+    backgroundPosition: 'center', // Center the image
+    backgroundRepeat: 'no-repeat', // Do not repeat the image
+    zIndex: 1, // Ensure it is above the tint overlay
+    pointerEvents: 'none', // Allow clicks to pass through
+    transition: 'filter 0.2s ease', // Smooth transition when the filter effect is applied
+  },
+
+  customCursor: {
+    position: 'fixed',
+    borderRadius: '50%',
+    background: 'radial-gradient(circle, rgba(255,0,0,1) 0%, rgba(128,0,0,0.5) 100%)', // Red gradient effect
+    boxShadow: '0 0 20px rgba(255,0,0,0.8), 0 0 60px rgba(255,0,0,0.4)', // Glowing red shadow
+    pointerEvents: 'none', // Let clicks pass through the custom cursor
+    transform: 'translate(-50%, -50%)', // Center the circle around the mouse pointer
+    zIndex: 1000, // Ensure it's above everything
   },
 
   verticalTextContainer: {
@@ -121,7 +167,7 @@ const styles = {
     fontSize: '1.2rem',
     fontFamily: 'Arial Black, sans-serif',
     color: '#000',
-    zIndex: 2, // Ensure it's on top of the slideshow
+    zIndex: 3, // Ensure it's on top of the slideshow
     marginRight: '20px', // Space between vertical text and the next element
   },
   verticalText: {
@@ -133,10 +179,9 @@ const styles = {
     height: '100vh',
     overflowY: 'scroll', // Enable vertical scrolling for right text
     fontSize: '1.2rem',
-    fontFamily: "'Lora', serif", // Use an elegant Google font
     lineHeight: '1.5',
     textAlign: 'left',
-    zIndex: 3, // Right text stays in the foreground
+    zIndex: 4, // Right text stays in the foreground
     padding: '0px 30px', // Adds padding to move text inward
     marginLeft: '10px',
     marginRight: '250px', // Move text further right
@@ -147,11 +192,11 @@ const styles = {
   },
 
   rightTextWrapperDefault: {
-    color: '#808080', // Default gray text color
+    color: '#9370DB', // Default gray text color
   },
 
   rightTextWrapperHover: {
-    color: '#9370DB', // Flieder color on hover
+    color: '#6B14B8', // Flieder color on hover
   },
 
   slideshowOverlay: {
@@ -160,21 +205,8 @@ const styles = {
     top: '0',
     width: '70%', // Increase the width of the slideshow
     height: '100%',
-    zIndex: 1, // Behind text, but on top of the background
+    zIndex: 3, // Behind text, but on top of the background
     pointerEvents: 'auto', // Allow interaction with the canvas
-  },
-
-  customCursor: {
-    position: 'fixed',
-    width: '40px',
-    height: '40px',
-    borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(255,0,0,1) 0%, rgba(128,0,0,1) 100%)', // Red gradient
-    boxShadow: '0 0 20px rgba(255,0,0,0.8), 0 0 60px rgba(255,0,0,0.6)', // Glowing red shadow
-    pointerEvents: 'none', // Let clicks pass through the custom cursor
-    transform: 'translate(-50%, -50%)', // Center the circle around the mouse pointer
-    zIndex: 1000, // Ensure it's above everything
-    animation: 'pulse 1.5s infinite', // Adding pulsing animation for the glow
   },
 };
 
