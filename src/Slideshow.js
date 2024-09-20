@@ -183,23 +183,20 @@ function Slideshow() {
     <div
       className="hover-title-container"
       style={{
-        fontSize: '6rem', // Slightly smaller font size
+        fontSize: '6rem',
         fontFamily: 'Arial Black, sans-serif',
         position: 'fixed',
-        writingMode: 'vertical-rl', // Vertical orientation of the text
-        right: '5%', // Positioned a bit further left from the right edge
-        bottom: '0%', // Slightly lower near the bottom of the canvas
-        transform: isHovered
-          ? 'rotateY(-10deg) rotateX(5deg) translateZ(20px) scale(1.1)'
-          : 'rotateY(-20deg) rotateX(10deg) translateZ(0)', // Subtle 3D rotation for a refined look
-        color: 'rgba(255, 0, 0, 1)', // Bright red for visibility
-        letterSpacing: '0.05em',
+        left: 'calc(50% + 10px)', // Positionierung rechts neben den Items
+        top: '50%', // Zentriert auf der Höhe des Viewports
+        transform: 'translateY(-50%)', // Vertikal zentriert
+        color: 'rgba(255, 0, 0, 0.9)', // Rot für starke Sichtbarkeit
+        letterSpacing: '0.1em',
         textTransform: 'uppercase',
-        whiteSpace: 'nowrap',
         pointerEvents: 'none',
         opacity: 0,
-        animation: 'smoothFadeIn 1s ease forwards',
-        zIndex: 10,
+        animation: 'slideIn 1s ease forwards, floatUpDown 2s ease-in-out infinite', // Kombination aus Einblend- und Schwebeanimation
+        zIndex: 100,
+        whiteSpace: 'nowrap', // Verhindert Zeilenumbrüche
       }}
     >
       {hoveredTitle}
@@ -207,25 +204,34 @@ function Slideshow() {
 
     <style>
       {`
-        @keyframes smoothFadeIn {
+        @keyframes slideIn {
           0% {
             opacity: 0;
-            transform: rotateY(-20deg) rotateX(10deg) translateZ(-40px); // Starting with a dynamic perspective
+            transform: translateY(-50%) translateX(-20px); // Startet leicht links versetzt
           }
           100% {
             opacity: 1;
-            transform: rotateY(-10deg) rotateX(5deg) translateZ(20px); // Final refined 3D positioning
+            transform: translateY(-50%) translateX(0); // Bewegt sich an die gewünschte Position
+          }
+        }
+
+        @keyframes floatUpDown {
+          0%, 100% {
+            transform: translateY(-50%) translateX(0); // Ausgangsposition
+          }
+          50% {
+            transform: translateY(-45%) translateX(0); // Leichte Aufwärtsbewegung
           }
         }
 
         .hover-title-container {
-          transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; // Smooth transition for elegance
+          transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+          filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.6)); // Leichte Schatten für mehr Tiefe
         }
       `}
     </style>
   </Html>
 )}
-
 
     </>
   );

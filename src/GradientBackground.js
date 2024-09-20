@@ -15,8 +15,8 @@ function Model({ isChrome }) {
       if (object.isMesh) {
         object.material = new THREE.MeshStandardMaterial({
           color: 0xff0000, // Red as the base color for the chrome effect
-          metalness: 1.0,  // Maximum metallicity for the chrome effect
-          roughness: 0.0,  // Extremely smooth for perfect reflections
+          metalness: 1.0, // Maximum metallicity for the chrome effect
+          roughness: 0.0, // Extremely smooth for perfect reflections
           envMapIntensity: 0.2, // Stronger reflections from the environment
         });
         object.castShadow = true;
@@ -102,14 +102,14 @@ function RedInteractiveBackground() {
     backgroundColor: 'black',
   };
 
-  // Guckloch effect style
+  // Updated Guckloch effect style
   const gucklockStyle = {
     background: `radial-gradient(
       circle at ${mousePos.x}px ${mousePos.y}px,
-      rgba(255, 0, 0, 1) 9px,
-      rgba(255, 0, 0, 0.2) 70px,
-      rgba(255, 0, 0, 0.2) 90px,
-      rgba(0, 0, 0, 1) 150px
+      rgba(255, 0, 0, 1) 10px,
+      rgba(255, 0, 0, 0.2) 60px,
+      rgba(255, 0, 0, 0.1) 70px,
+      rgba(255, 255, 255, 0.9) 90px
     )`,
     boxShadow: `0 0 30px 20px rgba(255, 0, 0, 0.2)`,
     width: '100vw',
@@ -122,9 +122,9 @@ function RedInteractiveBackground() {
     transition: 'all 0.1s ease-out',
   };
 
-  // Semi-transparent overlay background
+  // Updated Semi-transparent overlay background style
   const overlayBackgroundStyle = {
-    backgroundImage: `url(${process.env.PUBLIC_URL}/background1.jpg)`, // Semi-transparent overlay
+    backgroundImage: `url(${process.env.PUBLIC_URL}/background2.jpg)`,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     width: '100vw',
@@ -133,7 +133,14 @@ function RedInteractiveBackground() {
     top: 0,
     left: 0,
     zIndex: 3,
-    opacity: 0.2, // Set opacity for transparency effect
+    opacity: 0.6,
+    maskImage: `radial-gradient(
+      circle at ${mousePos.x}px ${mousePos.y}px,
+      transparent 0px, 
+      transparent 120px, 
+      rgba(0, 0, 0, 0.6) 180px
+    )`, // Creates a transparent area around the cursor
+    maskSize: '200vw 200vh',
   };
 
   return (
@@ -152,7 +159,7 @@ function RedInteractiveBackground() {
 
       {/* Canvas for 3D model and lighting */}
       <Canvas
-        style={{ position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 999 }}
+        style={{ position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 100 }}
         camera={{ position: [3, 4, 5], fov: isChrome ? 60 : 50 }} // Adjust FOV for Chrome
         shadows
       >
