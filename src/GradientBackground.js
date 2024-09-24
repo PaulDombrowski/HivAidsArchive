@@ -122,7 +122,7 @@ function RedInteractiveBackground() {
     transition: 'all 0.1s ease-out',
   };
 
-  // Updated Semi-transparent overlay background style
+  // Updated Semi-transparent overlay background style with stretching effect
   const overlayBackgroundStyle = {
     backgroundImage: `url(${process.env.PUBLIC_URL}/background2.jpg)`,
     backgroundSize: 'cover',
@@ -141,20 +141,22 @@ function RedInteractiveBackground() {
       rgba(0, 0, 0, 0.6) 180px
     )`, // Creates a transparent area around the cursor
     maskSize: '200vw 200vh',
+    transform: `scaleY(${1 + Math.abs((mousePos.y / window.innerHeight) * 0.1)})`, // Stretch effect based on mouse position
+    transition: 'transform 0.3s ease', // Smooth transition for stretching
   };
 
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
       {/* Scrolling background */}
-      <div style={backgroundImageStyle} /> 
-      
+      <div style={backgroundImageStyle} />
+
       {/* MagnetWords component */}
-      <MagnetWords /> 
-      
+      <MagnetWords />
+
       {/* Guckloch effect */}
       <div style={gucklockStyle} />
 
-      {/* Semi-transparent overlay */}
+      {/* Semi-transparent overlay with stretching effect */}
       <div style={overlayBackgroundStyle} />
 
       {/* Canvas for 3D model and lighting */}
@@ -167,7 +169,7 @@ function RedInteractiveBackground() {
         <ambientLight color={new THREE.Color(0x800080)} intensity={2.0} />
 
         {/* Point light that follows the mouse */}
-        <pointLight 
+        <pointLight
           position={[
             (mousePos.x / window.innerWidth) * 10 - 5,
             (mousePos.y / window.innerHeight) * 10 - 5,
@@ -179,15 +181,15 @@ function RedInteractiveBackground() {
           shadow-mapSize-width={1024}
           shadow-mapSize-height={1024}
         />
-        
+
         {/* Directional purple light */}
-        <directionalLight 
+        <directionalLight
           color={new THREE.Color(0x800080)} // Purple directional light
-          position={[0, 10, 10]} 
-          intensity={2} 
-          castShadow 
+          position={[0, 10, 10]}
+          intensity={2}
+          castShadow
         />
-        
+
         {/* Load the 3D model */}
         <Model isChrome={isChrome} />
 

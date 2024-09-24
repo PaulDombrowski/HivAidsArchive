@@ -180,7 +180,7 @@ function Page2() {
                 {/* Link Styling */}
                 <style jsx>{`
                     a {
-                        color: #FF0000; /* Red links */
+                        color: #4B0082; /* Red links */
                         text-decoration: none;
                     }
                     a:hover {

@@ -10,7 +10,8 @@ const Page1 = () => {
   const [cursorSize, setCursorSize] = useState(40);
   const [rightTransform, setRightTransform] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
-  const [backgroundScale, setBackgroundScale] = useState(1);
+  const [backgroundScaleY, setBackgroundScaleY] = useState(1);
+  const [rightTextZIndex, setRightTextZIndex] = useState(-2); // State to control z-index
   const requestRef = useRef(null);
 
   useEffect(() => {
@@ -20,8 +21,7 @@ const Page1 = () => {
 
       const windowWidth = window.innerWidth;
       const windowHeight = window.innerHeight;
-      const relativeX = clientX / windowWidth - 0.5;
-      const relativeY = clientY / windowHeight - 0.5;
+      const relativeY = (clientY / windowHeight - 0.5) * 2; // Scale between -1 and 1 for vertical movement
 
       const centerX = windowWidth / 2;
       const centerY = windowHeight / 2;
@@ -41,8 +41,8 @@ const Page1 = () => {
         (maxEffectDistance - distanceFromCenter) / maxEffectDistance
       );
 
-      const lightStrengthX = relativeX * 50;
-      const lightStrengthY = relativeY * 50;
+      const lightStrengthX = (clientX / windowWidth - 0.5) * 100;
+      const lightStrengthY = (clientY / windowHeight - 0.5) * 100;
 
       setFilterStyle(
         `drop-shadow(${lightStrengthX}px ${lightStrengthY}px 20px rgba(255, 255, 255, 0.3)) blur(${
@@ -50,9 +50,9 @@ const Page1 = () => {
         }px) brightness(${1 + effectStrength * 0.2}) contrast(${1 + effectStrength * 0.3})`
       );
 
-      // Calculate the scale factor and clamp to prevent extreme distortions
-      const scaleY = Math.min(Math.max(1 + relativeY * 0.1, 1), 1.2); // Adjusted to avoid extreme scaling
-      setBackgroundScale(scaleY);
+      // Enhanced scaling effect: scaleY only increases as the mouse moves up or down
+      const newScaleY = 1 + Math.abs(relativeY * 0.1); // Continuously increasing
+      setBackgroundScaleY(newScaleY);
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -72,6 +72,16 @@ const Page1 = () => {
     requestRef.current = requestAnimationFrame(updateRightTransform);
   };
 
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    setRightTextZIndex(5); // Bring to front on hover
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setRightTextZIndex(-2); // Reset z-index when not hovered
+  };
+
   return (
     <div style={styles.pageContainer}>
       {/* Lilaner, dynamisch angepasster Gradient um den Cursor */}
@@ -89,8 +99,7 @@ const Page1 = () => {
         style={{
           ...styles.backgroundImage,
           filter: filterStyle,
-          transform: `scaleY(${backgroundScale})`, // Apply vertical scaling based on cursor position
-          backgroundSize: `${100 + (backgroundScale - 1) * 100}% auto`, // Dynamically adjust the background size
+          transform: `scaleY(${backgroundScaleY})`, // Apply vertical scaling
         }}
       />
 
@@ -112,7 +121,7 @@ const Page1 = () => {
 
       {/* Slideshow */}
       <div style={styles.slideshowOverlay}>
-        <Canvas camera={{ position: [1, 0, 5], fov: 40 }} style={{ width: '100%', height: '100%' }}>
+        <Canvas camera={{ position: [1, 0, 5], fov: 30 }} style={{ width: '100%', height: '100%' }}>
           <Slideshow />
         </Canvas>
       </div>
@@ -125,11 +134,13 @@ const Page1 = () => {
           transform: `translate(${rightTransform.x}px, ${rightTransform.y}px) ${
             isHovered ? 'scale(1.05) rotateY(-20deg)' : 'rotateY(-40deg)'
           }`,
+          zIndex: rightTextZIndex,
+          transition: 'transform 0.3s ease, z-index 0.3s ease', // Smooth transition for z-index
         }}
         ref={rightTextRef}
         onMouseMove={handleMouseMoveOverRightText}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <LeftTextComponent />
       </div>
@@ -192,11 +203,12 @@ const styles = {
   verticalTextContainer: {
     writingMode: 'vertical-rl',
     transform: 'rotate(180deg)',
-    fontSize: '1.2rem',
+    fontSize: '3rem',
     fontFamily: 'Arial Black, sans-serif',
     color: '#6B14B8',
-    zIndex: 3,
+    zIndex: 5,
     marginRight: '20px',
+    marginBottom: '100px'
   },
   verticalText: {
     letterSpacing: '5px',
@@ -205,10 +217,10 @@ const styles = {
     width: '30%',
     height: '100vh',
     overflowY: 'scroll',
-    fontSize: '1.2rem',
+    fontSize: '1.9rem',
     lineHeight: '1.5',
     textAlign: 'left',
-    zIndex: 4,
+    zIndex: -2,
     padding: '0px 30px',
     marginLeft: '10px',
     marginRight: '250px',
@@ -221,7 +233,7 @@ const styles = {
     color: '#6B14B8',
   },
   rightTextWrapperHover: {
-    color: '#FF0000',
+    color: '#6B14B8',
   },
   slideshowOverlay: {
     position: 'absolute',

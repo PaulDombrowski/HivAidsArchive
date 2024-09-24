@@ -404,7 +404,7 @@ Young, James Edward [Hrsg.] 1994. <i>Mahnmale des Holocaust: Motive, Rituale und
 const styles = {
 
   link: {
-    color: 'black',
+
     textDecoration: 'underline',
     zindex: 100, 
   },
