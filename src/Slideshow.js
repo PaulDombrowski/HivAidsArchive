@@ -30,7 +30,7 @@ function ImagePlane({ position, texture, scale, onClick, delay, isChrome, title,
   });
 
   const scaleSpring = useSpring({
-    scale: hovered ? scale.map(s => s * 1.05) : scale,
+    scale: hovered ? scale.map((s) => s * 1.05) : scale,
     config: { tension: isChrome ? 150 : 200, friction: 10 },
   });
 
@@ -81,13 +81,12 @@ function Slideshow() {
   const isChrome = browser === 'chrome';
 
   const images = [
-    { path: `${process.env.PUBLIC_URL}/2.png`, title: 'Shuffle' },
-    { path: `${process.env.PUBLIC_URL}/3.png`, title: 'Database' },
-    { path: `${process.env.PUBLIC_URL}/4.png`, title: 'Search' },
-    { path: `${process.env.PUBLIC_URL}/5.png`, title: 'Upload' },
-    { path: `${process.env.PUBLIC_URL}/6.png`, title: 'Thesis' },
-    { path: `${process.env.PUBLIC_URL}/7.png`, title: 'Impress' },
-    { path: `${process.env.PUBLIC_URL}/8.png`, title: 'Image 7' },
+    { path: `${process.env.PUBLIC_URL}/2.png`, title: 'ABOUT', navigateTo: '/page7' },
+    { path: `${process.env.PUBLIC_URL}/3.png`, title: 'SHUFFLE', navigateTo: '/page3' },
+    { path: `${process.env.PUBLIC_URL}/4.png`, title: 'DATABASE', navigateTo: '/page4' },
+    { path: `${process.env.PUBLIC_URL}/5.png`, title: 'Upload', navigateTo: '/page6' },
+    { path: `${process.env.PUBLIC_URL}/6.png`, title: 'Thesis', navigateTo: '/page2' },
+    { path: `${process.env.PUBLIC_URL}/7.png`, title: 'Impress', navigateTo: '/page5' },
   ];
 
   const [loadedTextures, setLoadedTextures] = useState([]);
@@ -101,7 +100,7 @@ function Slideshow() {
     );
 
     Promise.all(loaders).then((textures) => {
-      const filteredTextures = textures.filter(texture => texture !== null);
+      const filteredTextures = textures.filter((texture) => texture !== null);
       setLoadedTextures(filteredTextures);
     });
 
@@ -143,7 +142,7 @@ function Slideshow() {
     position: [0, 0, -zDistance * i],
     texture,
     delay: i * 300,
-    onClick: () => navigate(`/page${i + 1}`),
+    onClick: () => navigate(images[i].navigateTo),
     title: images[i].title,
   }));
 
@@ -175,64 +174,61 @@ function Slideshow() {
           />
         ))}
       </group>
-    
-      // Inside the Slideshow component, replace the hoveredTitle rendering section with this updated block:
 
       {hoveredTitle && (
-  <Html fullscreen>
-    <div
-      className="hover-title-container"
-      style={{
-        fontSize: '6rem',
-        fontFamily: 'Arial Black, sans-serif',
-        position: 'fixed',
-        left: 'calc(50% + 10px)', // Positionierung rechts neben den Items
-        top: '50%', // Zentriert auf der Höhe des Viewports
-        transform: 'translateY(-50%)', // Vertikal zentriert
-        color: 'rgba(255, 0, 0, 0.9)', // Rot für starke Sichtbarkeit
-        letterSpacing: '0.1em',
-        textTransform: 'uppercase',
-        pointerEvents: 'none',
-        opacity: 0,
-        animation: 'slideIn 1s ease forwards, floatUpDown 2s ease-in-out infinite', // Kombination aus Einblend- und Schwebeanimation
-        zIndex: 100,
-        whiteSpace: 'nowrap', // Verhindert Zeilenumbrüche
-      }}
-    >
-      {hoveredTitle}
-    </div>
+        <Html fullscreen>
+          <div
+            className="hover-title-container"
+            style={{
+              fontSize: '6rem',
+              fontFamily: 'Arial Black, sans-serif',
+              position: 'fixed',
+              left: 'calc(50% + 10px)',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              color: 'rgba(255, 0, 0, 0.9)',
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              pointerEvents: 'none',
+              opacity: 0,
+              animation: 'slideIn 1s ease forwards, floatUpDown 2s ease-in-out infinite',
+              zIndex: 100,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {hoveredTitle}
+          </div>
 
-    <style>
-      {`
-        @keyframes slideIn {
-          0% {
-            opacity: 0;
-            transform: translateY(-50%) translateX(-20px); // Startet leicht links versetzt
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(-50%) translateX(0); // Bewegt sich an die gewünschte Position
-          }
-        }
+          <style>
+            {`
+              @keyframes slideIn {
+                0% {
+                  opacity: 0;
+                  transform: translateY(-50%) translateX(-20px);
+                }
+                100% {
+                  opacity: 1;
+                  transform: translateY(-50%) translateX(0);
+                }
+              }
 
-        @keyframes floatUpDown {
-          0%, 100% {
-            transform: translateY(-50%) translateX(0); // Ausgangsposition
-          }
-          50% {
-            transform: translateY(-45%) translateX(0); // Leichte Aufwärtsbewegung
-          }
-        }
+              @keyframes floatUpDown {
+                0%, 100% {
+                  transform: translateY(-50%) translateX(0);
+                }
+                50% {
+                  transform: translateY(-45%) translateX(0);
+                }
+              }
 
-        .hover-title-container {
-          transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-          filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.6)); // Leichte Schatten für mehr Tiefe
-        }
-      `}
-    </style>
-  </Html>
-)}
-
+              .hover-title-container {
+                transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+                filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.6));
+              }
+            `}
+          </style>
+        </Html>
+      )}
     </>
   );
 }
