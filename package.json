@@ -1,6 +1,6 @@
 {
   "name": "hivaidsarchive",
-  "homepage": "https://hivaidslegacy.wiki/",
+  "homepage": "https://pauldombrowski.github.io/HivAidsArchive/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
