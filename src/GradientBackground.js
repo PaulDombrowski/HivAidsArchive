@@ -32,7 +32,7 @@ function Model({ isChrome }) {
     scene.rotation.x += 0.001 * speedMultiplier;
   });
 
-  return <primitive object={scene} scale={[0.25, 0.25, 0.25]} position={[0, 0, 0]} />;
+  return <primitive object={scene} scale={[0.3, 0.3, 0.3]} position={[0, 0, 0]} />;
 }
 
 function RedInteractiveBackground() {

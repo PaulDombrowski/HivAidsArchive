@@ -38,8 +38,8 @@ table {
 }
 
 th, td {
-  padding: 10px;
-  border-bottom: 4px solid #000; /* Sehr dicke Trennlinien */
+  padding: 15px;
+  border-bottom: 3px solid #000; /* Sehr dicke Trennlinien */
   text-align: left;
   vertical-align: middle; /* Stellt sicher, dass alle Zellen gleich hoch sind */
 }

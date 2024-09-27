@@ -3,8 +3,9 @@ import React from 'react';
 const LeftTextComponent = () => {
   return (
     <div style={styles.leftTextContainer}>
+    <br />
       <p style={styles.leftText}>
-        <strong>HIV/AIDS LEGACY: ARCHIVING DIGITAL TRACES (Attempt #1)</strong> is an approach towards making the discursive expansion of HIV and AIDS history in the digital realm more tangible. How can known and unknown historical traces of HIV and AIDS be tracked online? How do digital media platforms, social networks, and user communication contribute to the historicization of HIV and AIDS? This open archive collects and documents digital references to the reception of HIV and AIDS, extending traditional archival approaches from physical and material spaces into the digital. <strong>HIV/AIDS LEGACY</strong> also aims to address the ongoing social impact of HIV and AIDS and question canonical forms of historiography and archiving.
+        <strong>HIV/AIDS LEGACY: ARCHIVING DIGITAL TRACES (Attempt #1) <br /></strong> is an approach towards making the discursive expansion of HIV and AIDS history in the digital realm more tangible. How can known and unknown historical traces of HIV and AIDS be tracked online? How do digital media platforms, social networks, and user communication contribute to the historicization of HIV and AIDS? This open archive collects and documents digital references to the reception of HIV and AIDS, extending traditional archival approaches from physical and material spaces into the digital. <strong>HIV/AIDS LEGACY</strong> also aims to address the ongoing social impact of HIV and AIDS and question canonical forms of historiography and archiving.
       </p>
       <p style={styles.leftText}>
         The archive is a first step towards rethinking the collectivization processes of memories and translating them into communicative social practices in order to create a more differentiated understanding of HIV and AIDS. The phrase <strong>“Attempt #1”</strong> emphasizes the open and potential nature of this archive. It illustrates a digital transformation of an open archive from below. In doing so, it does not claim to be comprehensive. Rather, it should be understood as a space of opportunity to generate a different perception of HIV/AIDS history and contribute to the preservation of this history in a digital form. It is an artistic-scientific endeavor aimed at expanding and reshaping archival strategies of collecting and organizing.
@@ -27,6 +28,7 @@ const LeftTextComponent = () => {
       <p style={styles.leftText}>
         <strong>HIV/AIDS LEGACY</strong> not only attempts to preserve a history and maintain a collective memory; it is also about expanding it and questioning our identity by collectivizing new, possibly previously hidden memories and traces. Because it is a participatory open archive, new affiliations to HIV/AIDS history are discussed with the help of the stored digital traces, and the collective memory is reformulated and expanded by the users. This enables the genesis of new associations and can further develop a practice of solidarity and emancipation.
       </p>
+      <br /> <br />
     </div>
   );
 };

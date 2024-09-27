@@ -87,7 +87,7 @@ function Page4() {
     if (wordCount > 12) {
       return `${Math.max(7, 12 - wordCount)}rem`;
     }
-    return '10rem';
+    return '7rem';
   };
 
   const filteredData = data.filter(item => 
