@@ -151,7 +151,7 @@ function Page3() {
           backgroundPosition: 'center', // Center the image
           backgroundRepeat: 'no-repeat', // Do not repeat the image
           zIndex: backgroundZIndex, // Controlled by state to move behind thumbnails on hover
-          opacity: 0.5, // Set background transparency
+          opacity: 0.3, // Set background transparency
           pointerEvents: 'none', // Allow clicks to pass through
           transition: 'filter 0.2s ease, z-index 0.2s ease', // Smooth transition when the filter and z-index change
           filter: filterStyle, // Dynamically applied filter to manipulate the image near the cursor

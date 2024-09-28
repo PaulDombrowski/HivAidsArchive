@@ -109,7 +109,7 @@ function RedInteractiveBackground() {
       rgba(255, 0, 0, 1) 10px,
       rgba(255, 0, 0, 0.2) 60px,
       rgba(255, 0, 0, 0.1) 70px,
-      rgba(255, 255, 255, 0.9) 90px
+      rgba(255, 255, 255, 0.93) 90px
     )`,
     boxShadow: `0 0 30px 20px rgba(255, 0, 0, 0.2)`,
     width: '100vw',
