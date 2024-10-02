@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import LeftTextComponent from './LeftTextComponent'; // Import the correct text component
+import Header from './Header2';
 
 const Page7 = () => {
   const rightTextRef = useRef(null);
@@ -81,7 +82,9 @@ const Page7 = () => {
 
   return (
     <div style={styles.pageContainer}>
+    
       {/* Cursor Gradient Effect */}
+      
       <div
         style={{
           ...styles.gradientAroundCursor,
@@ -112,6 +115,7 @@ const Page7 = () => {
       />
 
       {/* Right Text Wrapper with LeftTextComponent */}
+   
       <div
         style={{
           ...styles.rightTextWrapper,
@@ -127,8 +131,12 @@ const Page7 = () => {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
+       <Header/>
         <LeftTextComponent />
+       
       </div>
+
+
     </div>
   );
 };
@@ -191,7 +199,7 @@ const styles = {
     fontSize: '4rem', // Increased font size for a larger appearance
     lineHeight: '1.5',
     textAlign: 'left',
-    zIndex: -5,
+    zIndex: 20,
     padding: '0px 40px', // Adjusted padding for a wider appearance
     marginLeft: '300px',
     marginRight: '0px', // Adjusted margins to balance the layout

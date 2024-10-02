@@ -1,12 +1,14 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import Slideshow from './Slideshow';
+import Header from './Header';
 
 const Page1 = () => {
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [filterStyle, setFilterStyle] = useState('none');
   const [cursorSize, setCursorSize] = useState(40);
   const [backgroundScaleY, setBackgroundScaleY] = useState(1);
+  const [isHoveringSlideshow, setIsHoveringSlideshow] = useState(false); // Zustand für Hover über der Slideshow
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -56,6 +58,7 @@ const Page1 = () => {
 
   return (
     <div style={styles.pageContainer}>
+      <Header />
       <div
         style={{
           ...styles.gradientAroundCursor,
@@ -83,9 +86,25 @@ const Page1 = () => {
         }}
       />
 
+      {/* Titel und Untertitel, die rechts neben dem Cursor erscheinen, nur wenn über der Slideshow */}
+      {isHoveringSlideshow && (
+        <div
+          style={{
+            ...styles.titleContainer,
+            top: `${cursorPosition.y}px`,
+            left: `${cursorPosition.x + cursorSize + 10}px`, // Rechts neben dem Cursor
+          }}
+        >
+          <span style={styles.mainTitle}>HIV / AIDS LEGACY</span>
+          <span style={styles.subTitle}>ARCHIVING DIGITAL TRACES</span>
+        </div>
+      )}
+
       <Canvas
         camera={{ position: [-1, 0, 7], fov: 20 }}
-        style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 5}}
+        style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 5 }}
+        onPointerEnter={() => setIsHoveringSlideshow(true)} // Wenn der Mauszeiger über der Slideshow ist
+        onPointerLeave={() => setIsHoveringSlideshow(false)} // Wenn der Mauszeiger die Slideshow verlässt
       >
         <Slideshow />
       </Canvas>
@@ -143,6 +162,23 @@ const styles = {
     pointerEvents: 'none',
     transform: 'translate(-50%, -50%)',
     zIndex: 1000,
+  },
+  titleContainer: {
+    position: 'fixed',
+    pointerEvents: 'none', // Keine Interaktion mit dem Text möglich
+    transform: 'translateY(-50%)',
+    zIndex: 1000,
+    color: '#000',
+    fontFamily: 'Arial Black, sans-serif',
+    textAlign: 'left',
+  },
+  mainTitle: {
+    fontSize: '1.5rem',
+    fontWeight: 'bold',
+  },
+  subTitle: {
+    fontSize: '0.8rem',
+    fontStyle: 'italic',
   },
 };
 
