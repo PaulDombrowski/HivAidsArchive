@@ -130,7 +130,7 @@ function DetailPage() {
         const { left, top, width, height } = element.getBoundingClientRect();
         const x = event.clientX - (left + width / 2);
         const y = event.clientY - (top + height / 2);
-        element.style.transform = `rotateY(${x / 30}deg) rotateX(${-y / 30}deg) translateZ(10px)`; // Subtle 3D effect
+        element.style.transform = `rotateY(${x / 60}deg) rotateX(${-y / 60}deg)`; // Reduced 3D effect intensity
       });
     };
 
@@ -152,6 +152,7 @@ function DetailPage() {
       </div>
 
       <div className="detail-content">
+        {/* Flexbox layout: Image first, then the table */}
         <div className="detail-image-container">
           {data.thumbnailURL ? (
             <img 
@@ -198,17 +199,18 @@ function DetailPage() {
               </tr>
             )}
             {data.category && (
-              <tr>
-                <th>Categories:</th>
-                <td className="oval-container">
-                  {data.category.map((cat, index) => (
-                    <span key={index} className="category-oval">
-                      {cat}
-                    </span>
-                  ))}
-                </td>
-              </tr>
-            )}
+  <tr>
+    <th>Categories:</th>
+    <td className="table-category-container">
+      {data.category.map((cat, index) => (
+        <span key={index} className="table-category">
+          {cat}
+        </span>
+      ))}
+    </td>
+  </tr>
+)}
+
             {data.type && (
               <tr>
                 <th>Type:</th>
@@ -248,6 +250,25 @@ function DetailPage() {
                 </td>
               </tr>
             )}
+            {data.additionalInfo && data.additionalInfo.length > 0 && (
+  <tr>
+    <th>Linked Resources:</th>
+    <td>
+      {data.additionalInfo.map((resource, index) => (
+        <a 
+          key={index} 
+          href={resource} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          style={{ color: 'inherit', textDecoration: 'underline' }}
+        >
+          {resource}
+        </a>
+      ))}
+    </td>
+  </tr>
+)}
+
           </tbody>
         </table>
       </div>

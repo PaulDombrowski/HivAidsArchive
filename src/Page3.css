@@ -6,32 +6,39 @@
   background-color: #ffffff;
 }
 
-.shuffle-button {
-  padding: 15px 30px;
-  font-size: 18px;
-  border-radius: 100px;
-  background-color: red;
-  color: white;
-  border: none;
-  cursor: pointer;
+.shuffle-button-container {
   position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 1000;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10; /* High z-index to stay on top */
 }
 
-.shuffle-button:hover,
-.shuffle-button:active {
-  transform: scale(1.1);
-  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
+.shuffle-button {
+  padding: 15px 30px;
+  font-size: 22px;
+  border-radius: 50%;
+  background-color: transparent;
+  border: 3px solid red;
+  color: red;
+  cursor: pointer;
+  position: relative;
+  z-index: 10; /* High z-index to stay on top */
+}
+
+@keyframes rotateShuffle {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
 }
 
 .thumbnail-container {
   position: relative;
   width: 100%;
   height: 100%;
-  perspective: 1000px;
 }
 
 .thumbnail-item {
@@ -44,12 +51,11 @@
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
   transition: transform 0.5s ease, filter 0.5s ease, opacity 0.5s ease-in-out;
   cursor: pointer;
-  transform-style: preserve-3d;
 }
 
 .thumbnail-item:hover {
   transform: scale(1.1);
-  z-index: 10;
+  z-index: 6; /* Hovered thumbnail stays behind the Shuffle button */
 }
 
 .blurred {
@@ -57,22 +63,27 @@
   opacity: 0.5;
 }
 
-.hover-title {
+/* Larger hover title style with line breaks */
+.hovered-title-large {
   font-family: 'CustomFont', sans-serif;
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) rotate(15deg);
-  font-size: 2rem;
+  transform: translate(-50%,/* Continued from previous CSS */
+  -50%) rotate(15deg); /* Increased tilt for a more dramatic effect */
+  font-size: 10rem; /* Larger size */
   color: red;
   opacity: 0;
-  white-space: nowrap;
+  white-space: normal; /* Allow line breaks */
+  text-align: center;
+  word-wrap: break-word; /* Ensure words break to the next line if too long */
   pointer-events: none;
-  z-index: 1000;
+  z-index: 15;
 }
 
-.hover-title.show {
+.hovered-title-large.show {
   opacity: 1;
-  transform: translate(-50%, -50%) rotate(15deg) scale(1.2);
+  transform: translate(-50%, -50%) rotate(15deg) scale(1.1);
   transition: transform 0.5s ease, opacity 0.5s ease;
 }
+

@@ -4,7 +4,7 @@
 }
 
 .page4-container {
-  font-family: Arial, sans-serif;
+  font-family: Arial, sans-serif; /* Use default font for the rest */
   padding: 20px;
   max-width: 100%;
   max-height: 100vh;
@@ -39,18 +39,18 @@ table {
 
 th, td {
   padding: 15px;
-  border-bottom: 3px solid #000; /* Sehr dicke Trennlinien */
+  border-bottom: 3px solid #000; /* Very thick borders for rows */
   text-align: left;
-  vertical-align: middle; /* Stellt sicher, dass alle Zellen gleich hoch sind */
+  vertical-align: middle; /* Ensures that all cells are the same height */
 }
 
 th {
-  background-color: transparent; /* Entfernt den grauen Hintergrund */
+  background-color: transparent; /* Removes the gray background */
 }
 
 .clickable-row {
   transition: background-color 0.3s ease, color 0.3s ease;
-  border-radius: 0; /* Verhindert Abrundungen, um durchgehende Linien zu gewährleisten */
+  border-radius: 0; /* Prevents any rounding, ensures continuous lines */
   overflow: hidden;
 }
 
@@ -61,7 +61,7 @@ th {
 }
 
 .hover-title {
-  font-family: 'CustomFont';
+  font-family: 'CustomFont'; /* Apply custom font only to the hover title */
   position: fixed;
   top: 50%;
   left: 50%;
@@ -84,6 +84,17 @@ th {
   display: inline-block;
   position: relative;
   transition: transform 0.5s ease-in-out;
+}
+
+.hover-image {
+  position: fixed;
+  width: 300px; /* Adjust image size */
+  height: 300px;
+  object-fit: cover;
+  border-radius: 8px; /* Smoother corners */
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.4); /* Shadow effect */
+  z-index: 999;
+  pointer-events: none; /* Ensures the image does not interfere with other elements */
 }
 
 table tr:hover {
@@ -112,7 +123,7 @@ td.category {
   border: 2px solid #000;
   background-color: transparent;
   font-size: 0.75rem;
-  line-height: normal; /* Sicherstellen, dass die Höhe der Buttons stabil bleibt */
+  line-height: normal; /* Ensures button heights remain consistent */
 }
 
 @media (max-width: 768px) {
@@ -142,7 +153,7 @@ td.category {
   top: 20px;
   right: 20px;
   padding: 10px 20px;
-  border-radius: 50px; /* Ovale Form */
+  border-radius: 50px; /* Oval shape */
   border: 3px solid #ff0000;
   font-size: 1rem;
   outline: none;
@@ -150,7 +161,7 @@ td.category {
 }
 
 .search-field:focus {
-  border-color: red; /* Beim Fokussieren */
+  border-color: red; /* Red border on focus */
 }
 
 .clickable-row {
@@ -158,12 +169,12 @@ td.category {
 }
 
 .clickable-row:hover {
-  background-color: red; /* Rot beim Hover */
+  background-color: red; /* Red on hover */
   color: white;
 }
 
 .found-item {
-  animation: moveToTop 0.5s ease-out; /* Bewegung nach oben */
+  animation: moveToTop 0.5s ease-out; /* Moving up animation for found item */
 }
 
 @keyframes moveToTop {

@@ -41,9 +41,10 @@ body, html {
   overflow-y: auto;
   height: calc(100% - 80px); /* Adjusted for potential title height */
   display: flex;
-  justify-content: center;
-  align-items: flex-start; /* Align items at the top */
-  gap: -20px; /* Negative gap to bring image and table closer */
+  flex-direction: column; /* Stack items vertically */
+  align-items: center;
+  justify-content: flex-start;
+  gap: 20px; /* Space between the image and the table */
 }
 
 .detail-description {
@@ -57,18 +58,10 @@ body, html {
   margin: 10px 0;
 }
 
-.detail-thumbnail,
-.detail-image {
+.detail-thumbnail, .detail-image {
   width: 100%;
   max-height: 100%;
   object-fit: contain;
-}
-
-.youtube-video iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-  border-radius: 8px;
 }
 
 .detail-image-container {
@@ -76,27 +69,22 @@ body, html {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%; /* Center the image vertically and horizontally */
-  margin-right: -50px; /* Negative margin to overlap with the table */
+  height: 100%;
 }
 
-.detail-thumbnail,
-.detail-image {
+.detail-thumbnail, .detail-image {
   width: 90%;
   max-height: 90%;
   object-fit: contain;
-  transition: transform 0.4s ease, box-shadow 0.4s ease; /* Slower transition for a smoother effect */
+  transition: transform 0.4s ease, box-shadow 0.4s ease; /* Smoother effect */
   transform: rotateY(5deg) rotateX(5deg); /* Initial subtle 3D effect */
 }
 
-.detail-thumbnail:hover,
-.detail-image:hover {
-  transform: rotateY(0deg) rotateX(0deg) translateZ(30px) scale(4); /* Noticeable scaling and slight forward movement */
-  z-index: 20; /* Ensure the image is above other content */
+.detail-thumbnail:hover, .detail-image:hover {
+  transform: rotateY(0deg) rotateX(0deg) translateZ(30px) scale(1.05); /* Subtle zoom on hover */
 }
 
-
-/* 3D effect for the information table */
+/* Table Styling */
 .detail-info-table {
   width: 80%;
   margin: 20px auto;
@@ -104,15 +92,12 @@ body, html {
   text-align: left;
   font-size: 4rem; /* Larger font size */
   color: #ff0000; /* Red text color when the background is white */
-  transition: color 0.5s ease, transform 0.2s ease; /* Transition for 3D effect */
-  transform: rotateY(0deg) rotateX(0deg) translateZ(0px); /* Initial flat state */
-  perspective: 800px; /* Adds perspective for the 3D effect */
-  position: relative; /* Allows overlap with the image */
-  z-index: 10; /* Ensures the table is above the image */
+  transition: color 0.5s ease, transform 0.2s ease;
+  transform: rotateY(0deg) rotateX(0deg); /* Flat state */
+  perspective: 800px; /* Adds perspective for 3D effect */
 }
 
-.detail-info-table th,
-.detail-info-table td {
+.detail-info-table th, .detail-info-table td {
   padding: 12px 20px;
   border-bottom: 3px solid #ff0000; /* Thicker red separators */
 }
@@ -125,30 +110,42 @@ body, html {
   color: white; /* Change text color to white when the background is red */
 }
 
-.detail-page.red-background th,
-.detail-page.red-background td {
+.detail-page.red-background th, .detail-page.red-background td {
   border-bottom: 3px solid white; /* Thicker white separators when background is red */
 }
 
-.detail-info-table th:hover,
-.detail-info-table td:hover {
-  background-color: #ff0000; /* Strong red hover effect */
-  color: white; /* Change text color to white on hover */
+.detail-info-table th:hover, .detail-info-table td:hover {
+  background-color: #ff0000; /* Red hover effect */
+  color: white; /* White text on hover */
 }
 
-/* Remove box shadow */
 .detail-info-table:hover {
   transform: rotateY(5deg) rotateX(5deg) translateZ(10px); /* Subtle 3D effect */
 }
 
-.category-oval {
-  display: inline-block;
-  padding: 5px 10px;
-  border-radius: 25px;
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-  font-size: 0.9rem;
-  color: #333;
-  font-family: 'Arial', sans-serif;
-  margin: 5px;
+/* Category Styling */
+.table-category-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 15px; /* Spacing between categories */
 }
+
+.table-category {
+  display: inline-block;
+  padding: 10px 25px; /* Adjust size to match table */
+  border-radius: 50px;
+  background-color: #f0f0f0; /* Light background */
+  border: 2px solid #ff0000; /* Red border */
+  font-size: 1.2rem; /* Adjust font size to match table */
+  color: #505050;
+  transition: background-color 0.5s, color 0.5s, border-color 0.5s;
+  font-family: 'Arial', sans-serif;
+}
+
+.table-category:hover {
+  background-color: #505050; /* Dark background on hover */
+  color: white; /* White text on hover */
+  border-color: white; /* White border on hover */
+}
+

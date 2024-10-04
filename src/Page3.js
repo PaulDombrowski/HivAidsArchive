@@ -26,9 +26,6 @@ function Page3() {
   const [positions, setPositions] = useState([]);
   const [hoveredItem, setHoveredItem] = useState(null);
   const [hoverTitle, setHoverTitle] = useState('');
-  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
-  const [filterStyle, setFilterStyle] = useState('none'); // State for dynamic filter effect
-  const [backgroundZIndex, setBackgroundZIndex] = useState(2); // State to control background z-index
   const navigate = useNavigate();
 
   // Fetch data from Firestore and shuffle
@@ -39,85 +36,38 @@ function Page3() {
       querySnapshot.forEach((doc) => {
         items.push({ id: doc.id, ...doc.data() });
       });
-      shuffleData(items); // Shuffle after fetching
+      shuffleData(items);
     } catch (error) {
       console.error("Error fetching data: ", error);
     }
   };
 
   useEffect(() => {
-    fetchData(); // Fetch data on initial load
+    fetchData();
   }, []);
 
-  // Update filter effect based on cursor movement
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      const { clientX, clientY } = e;
-      setCursorPosition({ x: clientX, y: clientY });
-
-      // Calculate proximity of the cursor to determine filter strength
-      const windowWidth = window.innerWidth;
-      const windowHeight = window.innerHeight;
-      const centerX = windowWidth / 2;
-      const centerY = windowHeight / 2;
-      const distanceFromCursor = Math.sqrt(
-        (clientX - centerX) ** 2 + (clientY - centerY) ** 2
-      );
-
-      // Adjust filter intensity: stronger near the cursor
-      const maxEffectDistance = 300; // Distance within which the effect is noticeable
-      const effectStrength = Math.max(
-        0,
-        (maxEffectDistance - distanceFromCursor) / maxEffectDistance
-      );
-
-      // Set a strong purple tint and moderate contrast near the cursor
-      setFilterStyle(
-        `hue-rotate(270deg) saturate(${1 + effectStrength * 3}) brightness(${
-          1 + effectStrength * 0.3
-        })`
-      );
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, []);
-
-  // Shuffle data and distribute positions randomly
+  // Shuffle data and distribute positions
   const shuffleData = (items) => {
     const shuffled = [...items].sort(() => 0.5 - Math.random());
     setData(shuffled.slice(0, 6)); // Show 6 random items
-    generateRandomPositions(6); // Generate random positions for the 6 items
+    generateCircularPositions(6); // Arrange items in a circular formation
   };
 
-  // Generate random positions for the items
-  const generateRandomPositions = (count) => {
+  // Generate circular positions for the thumbnails
+  const generateCircularPositions = (count) => {
     const positions = [];
-    const spacing = 200; // Minimum spacing between items
-    const maxWidth = window.innerWidth - spacing;
-    const maxHeight = window.innerHeight - spacing;
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    const radius = 300; // Radius for the circle
+    const angleStep = (2 * Math.PI) / count; // Equal spacing in a circle
 
     for (let i = 0; i < count; i++) {
-      let position;
-      let tries = 0;
-
-      do {
-        position = {
-          left: Math.floor(Math.random() * maxWidth),
-          top: Math.floor(Math.random() * maxHeight),
-          rotateY: 10 // Same tilt angle for all items
-        };
-        tries++;
-      } while (
-        positions.some(
-          (p) =>
-            Math.abs(p.left - position.left) < spacing &&
-            Math.abs(p.top - position.top) < spacing
-        ) && tries < 100
-      );
+      const angle = i * angleStep;
+      const position = {
+        left: centerX + radius * Math.cos(angle) - 150,
+        top: centerY + radius * Math.sin(angle) - 100,
+        rotateZ: angle * (180 / Math.PI),
+      };
       positions.push(position);
     }
     setPositions(positions);
@@ -127,18 +77,16 @@ function Page3() {
   const handleMouseEnter = (item) => {
     setHoveredItem(item.id);
     setHoverTitle(item.title);
-    setBackgroundZIndex(0); // Move background behind items when hovered
   };
 
   const handleMouseLeave = () => {
     setHoveredItem(null);
     setHoverTitle('');
-    setBackgroundZIndex(2); // Reset background z-index when not hovering
   };
 
   return (
     <div className="page-container" style={{ position: 'relative' }}>
-      {/* Background image layer with dynamic filter */}
+      {/* Background image layer */}
       <div
         style={{
           position: 'absolute',
@@ -147,57 +95,56 @@ function Page3() {
           width: '100%',
           height: '100%',
           backgroundImage: "url('background2.jpg')",
-          backgroundSize: 'cover', // Ensure the image covers the entire area
-          backgroundPosition: 'center', // Center the image
-          backgroundRepeat: 'no-repeat', // Do not repeat the image
-          zIndex: backgroundZIndex, // Controlled by state to move behind thumbnails on hover
-          opacity: 0.3, // Set background transparency
-          pointerEvents: 'none', // Allow clicks to pass through
-          transition: 'filter 0.2s ease, z-index 0.2s ease', // Smooth transition when the filter and z-index change
-          filter: filterStyle, // Dynamically applied filter to manipulate the image near the cursor
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          zIndex: 1,
+          opacity: 0.5,
+          pointerEvents: 'none',
         }}
       />
 
-      {/* Large, hollow shuffle button */}
-      <button
-        onClick={fetchData}
-        className="shuffle-button"
-        style={{
-          zIndex: 3,
-          position: 'absolute',
-          top: '10px',
-          right: '10px',
-          padding: '20px 40px',
-          fontSize: '24px',
-          border: '3px solid red',
-          backgroundColor: 'transparent',
-          color: 'red',
-          borderRadius: '10px',
-          cursor: 'pointer',
-          transition: 'transform 0.3s ease',
-        }}
-        onMouseEnter={(e) => (e.target.style.transform = 'scale(1.1)')}
-        onMouseLeave={(e) => (e.target.style.transform = 'scale(1)')}
-      >
-        Shuffle
-      </button>
+      {/* Circular Shuffle Button */}
+      <div className="shuffle-button-container">
+        <motion.button
+          onClick={fetchData}
+          className="shuffle-button"
+          style={{
+            zIndex: 10, // High enough z-index to stay on top
+            width: '150px',
+            height: '150px',
+            borderRadius: '50%',
+            border: '3px solid red',
+            backgroundColor: 'transparent',
+            color: 'red',
+            fontSize: '22px',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%) rotate(0deg)',
+            animation: 'rotateShuffle 5s linear infinite',
+          }}
+        >
+          Shuffle
+        </motion.button>
+      </div>
 
-      {/* Hovered Title */}
-      <div className={`hover-title ${hoverTitle ? 'show' : ''}`} style={{ zIndex: 3 }}>
+      {/* Hovered Title - Larger with line breaks */}
+      <div className={`hovered-title-large ${hoverTitle ? 'show' : ''}`} style={{ zIndex: 15 }}>
         {hoverTitle.split(' ').map((word, index) => (
           <motion.span
             key={index}
-            initial={{ opacity: 0, x: Math.random() * 50 - 25, y: Math.random() * 50 - 25 }}
-            animate={{ opacity: 1, x: 0, y: 0 }}
+            initial={{ opacity: 0, x: Math.random() * 20 - 10, y: Math.random() * 20 - 10 }}
+            animate={{ opacity: 1, x: 0, y: 0, rotate: Math.random() * 20 - 10 }} // More tilt
             transition={{ duration: 0.5, delay: index * 0.1 }}
-            style={{ display: 'inline-block', marginRight: '5px' }}
+            style={{ display: 'inline-block', marginRight: '5px', fontSize: '10rem' }} // Larger text size
           >
             {word}
           </motion.span>
         ))}
       </div>
 
-      <div className="thumbnail-container" style={{ zIndex: 1 }}>
+      <div className="thumbnail-container">
         {data.map((item, index) => {
           const backgroundImage = item.thumbnailURL || (item.fileURLs && item.fileURLs[0]);
 
@@ -213,36 +160,28 @@ function Page3() {
               style={{
                 ...positions[index],
                 backgroundImage: `url(${backgroundImage})`,
-                backgroundSize: 'contain', // Contain the item area while keeping aspect ratio
+                backgroundSize: 'contain',
                 backgroundPosition: 'center',
-                borderRadius: '15px', // Rounded corners
-                width: '350px', // Uniform width for visibility
-                height: '200px', // Fixed height for consistent display
-                zIndex: hoveredItem === item.id ? 4 : 0, // Items start behind the background
-                opacity: hoveredItem === item.id ? 1 : 0.4, // Higher opacity on hover
-                transition: 'opacity 0.5s, z-index 0.5s, transform 0.3s', // Smooth transition for hover and scale
-                overflow: 'hidden', // Ensure no overflow with rounded corners
-              }}
-              initial={{ rotateY: positions[index].rotateY }}
-              animate={{
-                y: [0, -10, 0], // Floating animation
-                rotateY: hoveredItem === item.id ? 0 : positions[index].rotateY,
-                transition: {
-                  duration: Math.random() * 3 + 2,
-                  repeat: Infinity,
-                  repeatType: 'reverse',
-                },
+                borderRadius: '15px',
+                width: '300px',
+                height: '200px',
+                zIndex: hoveredItem === item.id ? 6 : 2, // Keep below the shuffle button
+                opacity: hoveredItem === item.id ? 1 : 0.4,
+                transform: `rotate(${positions[index].rotateZ}deg)`,
+                transition: 'opacity 0.5s, z-index 0.5s, transform 0.3s',
+                overflow: 'hidden',
               }}
               whileHover={{
-                scale: 1.9,
-                zIndex: 5, // Bring to front on hover
+                scale: 1.5,
+                zIndex: 6,
               }}
             />
           );
         })}
       </div>
-      <SpiralText style={{ zIndex: 3 }} />
-      <CursorComponent style={{ zIndex: 3 }} />
+
+      <SpiralText style={{ zIndex: 5 }} />
+      <CursorComponent style={{ zIndex: 5 }} />
     </div>
   );
 }

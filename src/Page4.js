@@ -23,6 +23,8 @@ const db = getFirestore(app);
 function Page4() {
   const [data, setData] = useState([]);
   const [hoverTitle, setHoverTitle] = useState('');
+  const [hoverImage, setHoverImage] = useState('');
+  const [hoverImagePosition, setHoverImagePosition] = useState({ top: 0, left: 0 });
   const [isTouch, setIsTouch] = useState(false);
   const [searchTerm, setSearchTerm] = useState(''); 
   const navigate = useNavigate();
@@ -67,13 +69,27 @@ function Page4() {
     }
   };
 
-  const handleMouseEnter = (title) => {
-    setHoverTitle(title);
+  const handleMouseEnter = (item, event) => {
+    setHoverTitle(item.title);
+
+    // Random position for hover image near the hovered row
+    const randomTop = event.clientY + Math.random() * 30 - 15;
+    const randomLeft = event.clientX + Math.random() * 30 - 15;
+
+    setHoverImagePosition({ top: randomTop, left: randomLeft });
+
+    // Show either fileURL or thumbnailURL
+    if (item.fileURLs && item.fileURLs.length > 0) {
+      setHoverImage(item.fileURLs[0]); // Priority to fileURLs
+    } else if (item.thumbnailURL) {
+      setHoverImage(item.thumbnailURL);
+    }
   };
 
   const handleMouseLeave = () => {
     if (!isTouch) {
       setHoverTitle('');
+      setHoverImage(''); // Hide image on mouse leave
     }
   };
 
@@ -101,7 +117,7 @@ function Page4() {
     <div className="page4-container">
       <h1>ALL CURRENT RECORDS IN THE DATABASE</h1>
 
-      {/* Suchfeld */}
+      {/* Search field */}
       <input
         type="text"
         placeholder="Search..."
@@ -118,6 +134,22 @@ function Page4() {
           <span key={index} style={getRandomPositionStyle()}>{word}</span>
         ))}
       </div>
+
+      {/* Hovered Image */}
+      {hoverImage && (
+        <motion.img
+          src={hoverImage}
+          alt="Hover Thumbnail"
+          className="hover-image"
+          style={{
+            top: `${hoverImagePosition.top}px`,
+            left: `${hoverImagePosition.left}px`,
+          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1, scale: 1.2 }} // Smooth fade-in and slight scaling
+          transition={{ duration: 0.3 }}
+        />
+      )}
 
       <table>
         <thead>
@@ -139,7 +171,7 @@ function Page4() {
               animate={{ opacity: 1, translateY: 0 }}
               transition={{ duration: 0.2, delay: index * 0.05 }} 
               onClick={() => handleRowClick(item.id)}
-              onMouseEnter={() => handleMouseEnter(item.title)}
+              onMouseEnter={(e) => handleMouseEnter(item, e)}
               onMouseLeave={handleMouseLeave}
               onTouchStart={() => handleTouch(item.title)}
               className={`clickable-row ${searchTerm ? 'found-item' : ''}`} 
