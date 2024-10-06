@@ -129,17 +129,12 @@ const Page7 = () => {
 
       <br />  <br />  <br />  <br />  <br />  <br />   <br />
         <h1>IMPRESSUM</h1>
-        <p><strong>Responsible for Content</strong></p>
-        <p>[Your Name]</p>
-        <p>[Your Organization (if applicable)]</p>
-        <p>[Street Address]</p>
-        <p>[City, Postal Code]</p>
-        <p>[Country]</p>
+        
 
-        <p><strong>Contact Information</strong></p>
-        <p>Email: [your.email@example.com]</p>
-        <p>Phone: [+Your Phone Number]</p>
 
+        <p>Email: [pleasearchiveme@gmail.com]</p>
+       
+  
         <p><strong>Project Purpose</strong></p>
         <p>
           The Open HIV Archive is an artistic project and digital collection dedicated to preserving and curating digital traces related to HIV/AIDS. Our platform allows users to upload content and aims to reflect the diverse history and narratives associated with HIV/AIDS. Content available on this site, including images and texts, may often originate from external sources, with attributions and links provided to the original creators wherever possible.
@@ -182,7 +177,7 @@ const Page7 = () => {
 
         <p><strong>Contact for Content Concerns</strong></p>
         <p>
-          If you have any questions, concerns, or believe that any material on this site should not be displayed, please contact us at [your.email@example.com]. We are committed to reviewing and addressing your concerns promptly.
+          If you have any questions, concerns, or believe that any material on this site should not be displayed, please contact us at [pleasearchiveme@gmail.com]. We are committed to reviewing and addressing your concerns promptly.
         </p>
 
         <p><strong>Dispute Resolution</strong></p>

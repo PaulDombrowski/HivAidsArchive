@@ -50,23 +50,20 @@ function Page3() {
   const shuffleData = (items) => {
     const shuffled = [...items].sort(() => 0.5 - Math.random());
     setData(shuffled.slice(0, 6)); // Show 6 random items
-    generateCircularPositions(6); // Arrange items in a circular formation
+    generateRandomPositions(6); // Distribute items in a creative layout
   };
 
-  // Generate circular positions for the thumbnails
-  const generateCircularPositions = (count) => {
+  // Generate random positions for the thumbnails
+  const generateRandomPositions = (count) => {
     const positions = [];
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
-    const radius = 300; // Radius for the circle
-    const angleStep = (2 * Math.PI) / count; // Equal spacing in a circle
+    const maxX = window.innerWidth - 300; // Ensures thumbnails stay within window width
+    const maxY = window.innerHeight - 200; // Ensures thumbnails stay within window height
 
     for (let i = 0; i < count; i++) {
-      const angle = i * angleStep;
       const position = {
-        left: centerX + radius * Math.cos(angle) - 150,
-        top: centerY + radius * Math.sin(angle) - 100,
-        rotateZ: angle * (180 / Math.PI),
+        left: Math.random() * maxX,
+        top: Math.random() * maxY,
+        rotateZ: Math.random() * 20 - 10, // Random slight tilt
       };
       positions.push(position);
     }
@@ -85,7 +82,7 @@ function Page3() {
   };
 
   return (
-    <div className="page-container" style={{ position: 'relative' }}>
+    <div className="page-container" style={{ position: 'relative', overflow: 'hidden' }}>
       {/* Background image layer */}
       <div
         style={{
@@ -104,24 +101,25 @@ function Page3() {
         }}
       />
 
-      {/* Circular Shuffle Button */}
+      {/* Shuffle Button fixed at top right */}
       <div className="shuffle-button-container">
         <motion.button
           onClick={fetchData}
           className="shuffle-button"
           style={{
-            zIndex: 10, // High enough z-index to stay on top
-            width: '150px',
-            height: '150px',
+            zIndex: 20, // Ensure the button is on top
+            width: '200px', // Prominent but not overpowering
+            height: '200px',
             borderRadius: '50%',
             border: '3px solid red',
             backgroundColor: 'transparent',
             color: 'red',
-            fontSize: '22px',
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%) rotate(0deg)',
+            fontSize: '28px', // Large font size
+            fontFamily: 'Arial Black, sans-serif', // Arial Black font
+            fontStyle: 'italic', // Italic style
+            position: 'fixed', // Fixed position
+            top: '20px', // Position in the top right corner
+            right: '20px',
             animation: 'rotateShuffle 5s linear infinite',
           }}
         >
@@ -144,7 +142,7 @@ function Page3() {
         ))}
       </div>
 
-      <div className="thumbnail-container">
+      <div className="thumbnail-container" style={{ position: 'relative', zIndex: 5 }}>
         {data.map((item, index) => {
           const backgroundImage = item.thumbnailURL || (item.fileURLs && item.fileURLs[0]);
 
@@ -158,22 +156,35 @@ function Page3() {
               onMouseEnter={() => handleMouseEnter(item)}
               onMouseLeave={handleMouseLeave}
               style={{
-                ...positions[index],
+                ...positions[index], // Randomly distributed positions
                 backgroundImage: `url(${backgroundImage})`,
                 backgroundSize: 'contain',
                 backgroundPosition: 'center',
                 borderRadius: '15px',
-                width: '300px',
+                width: '250px',
                 height: '200px',
-                zIndex: hoveredItem === item.id ? 6 : 2, // Keep below the shuffle button
+                zIndex: hoveredItem === item.id ? 10 : 5, // Bring forward on hover
                 opacity: hoveredItem === item.id ? 1 : 0.4,
                 transform: `rotate(${positions[index].rotateZ}deg)`,
                 transition: 'opacity 0.5s, z-index 0.5s, transform 0.3s',
                 overflow: 'hidden',
               }}
+              initial={{
+                y: 0, // Initial position
+              }}
+              animate={{
+                y: [-5, 5], // Subtle floating effect
+              }}
+              transition={{
+                duration: 5, // Smooth and slow floating effect
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
               whileHover={{
-                scale: 1.5,
-                zIndex: 6,
+                y: [-10, 10], // Larger floating on hover
+                transition: { duration: 3, repeat: Infinity, ease: "easeInOut" }, // Smooth, slow hover float
+                scale: 1.05, // Slight scaling effect on hover
+                zIndex: 10, // Bring forward on hover
               }}
             />
           );
