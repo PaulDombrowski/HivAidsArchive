@@ -161,8 +161,8 @@ function Page3() {
                 backgroundSize: 'contain',
                 backgroundPosition: 'center',
                 borderRadius: '15px',
-                width: '250px',
-                height: '200px',
+                width: '150px',
+                height: '100px',
                 zIndex: hoveredItem === item.id ? 10 : 5, // Bring forward on hover
                 opacity: hoveredItem === item.id ? 1 : 0.4,
                 transform: `rotate(${positions[index].rotateZ}deg)`,
